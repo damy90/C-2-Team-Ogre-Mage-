@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FallingRocksExample", "FallingRocksExample\FallingRocksExample.csproj", "{D9DC3140-17F2-41AA-9A21-32B6342762E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarsExample", "CarsExample\CarsExample.csproj", "{B6A8B322-3101-413C-B32E-0C81FCA2F03F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D9DC3140-17F2-41AA-9A21-32B6342762E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9DC3140-17F2-41AA-9A21-32B6342762E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9DC3140-17F2-41AA-9A21-32B6342762E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6A8B322-3101-413C-B32E-0C81FCA2F03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A8B322-3101-413C-B32E-0C81FCA2F03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A8B322-3101-413C-B32E-0C81FCA2F03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6A8B322-3101-413C-B32E-0C81FCA2F03F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
