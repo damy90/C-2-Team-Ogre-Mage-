@@ -33,6 +33,9 @@ class FallingRocks
             }
         }
 
+        string playerName = "Dany";
+        //print scoreboard and questions
+        Console.WriteLine("Player name: {0}\t\tscore: {1}",playerName, score);
         //game loop
         while (true)
         {
@@ -55,7 +58,7 @@ class FallingRocks
                 waitTime -= 5;
             }
 
-            score++;
+            //score++;
 
             //generate the new line
             for (int col = 0; col < width; col++)
@@ -86,7 +89,7 @@ class FallingRocks
             playfield[bottomRow][pos] = '(';
             playfield[bottomRow][pos + 1] = '0';
             playfield[bottomRow][pos + 2] = ')';
-            Console.SetCursorPosition(0, 5);
+            Console.SetCursorPosition(0, 4);
 
             //draw scene
             for (int j = 0, n = row; j < heigth; j++)
@@ -103,7 +106,7 @@ class FallingRocks
             }
 
             row = bottomRow;
-            Console.WriteLine("score: {0}", score);
+            //Console.WriteLine("score: {0}", score);
             Thread.Sleep(waitTime);
         }
 
