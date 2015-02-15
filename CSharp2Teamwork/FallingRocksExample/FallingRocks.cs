@@ -23,6 +23,9 @@ class FallingRocks
             score = 0;
         char[][] playfield = new char[heigth][];
         char[] rocks = { '^', '@', '*', '&', '+', '%', '$', '#', '!', '.', ';', '-' };
+        Console.WindowHeight = heigth + 10;
+        Console.WindowWidth = width + 11;
+        Console.BufferWidth = Console.WindowWidth;
 
         for (int i = 0; i < heigth; i++)
         {
@@ -33,9 +36,16 @@ class FallingRocks
             }
         }
 
+        //TODO add a method to enter player name 
         string playerName = "Dany";
         //print scoreboard and questions
-        Console.WriteLine("Player name: {0}\t\tscore: {1}",playerName, score);
+        Console.Write("Player name: {0}",playerName);
+        //align right
+        Console.CursorLeft = Console.BufferWidth - 12;
+        Console.WriteLine("score: {0}", score);
+        Console.WriteLine("QUestion: What number am I thinking of?");
+        Console.WriteLine("Answer: ??");
+
         //game loop
         while (true)
         {
