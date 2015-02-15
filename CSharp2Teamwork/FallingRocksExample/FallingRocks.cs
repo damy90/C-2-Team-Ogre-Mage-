@@ -23,6 +23,7 @@ class FallingRocks
             score = 0;
         char[][] playfield = new char[heigth][];
         char[] rocks = { '^', '@', '*', '&', '+', '%', '$', '#', '!', '.', ';', '-' };
+        //set console size to fit the console application
         Console.WindowHeight = heigth + 10;
         Console.WindowWidth = width + 11;
         Console.BufferWidth = Console.WindowWidth;
@@ -116,7 +117,8 @@ class FallingRocks
             }
 
             row = bottomRow;
-            //Console.WriteLine("score: {0}", score);
+            Console.SetCursorPosition(0, 3);
+            Console.WriteLine("Test: Does writting a line above the gamefield offset it down?");
             Thread.Sleep(waitTime);
         }
 
