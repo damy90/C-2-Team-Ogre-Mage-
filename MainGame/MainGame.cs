@@ -204,7 +204,7 @@ class UserInterface
         Console.Write(str);
     }
 
-    
+    //TO DO: 
     //Function to check the current answer is correct 
     static void checkAnswer(string answer)
     {
@@ -212,7 +212,7 @@ class UserInterface
         {
             level ++;
             score += GetAnswer(level).Length*5;
-            // restart main 
+            StartGame(); 
         }
         else
         {
@@ -221,7 +221,7 @@ class UserInterface
             {
                 // gameover 
             }
-            // restart main  
+            StartGame();
         }
     }
 
