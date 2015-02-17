@@ -1,2 +1,1 @@
-//TO DO : 
-1.Make TO DO list. :D 
+1.Make to do list 
