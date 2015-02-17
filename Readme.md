@@ -10,8 +10,8 @@ First, you receive a question in the upper part of the console. To answer this q
 
 ## Controls
 
-Left Arrow – Move Left
+* Left Arrow – Move Left
 
-Right Arrow – Move Right
+* Right Arrow – Move Right
 
 …
