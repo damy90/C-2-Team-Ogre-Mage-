@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Globalization;
 using System.Threading;
 
 class UserInterface
 {
-    static int consoleWidth = 150;
-    static int consoleHeight = 70;
+    static int consoleWidth = 120;
+    static int consoleHeight = 40;
     static int oldPosition;
+
+    static int level = 0; 
+    static int heartsCount = 3; 
     static int score = 0;
+
     struct Object //player, signs, deletes, bombs
     {
         public int x;
@@ -21,21 +21,27 @@ class UserInterface
         public ConsoleColor color;
     }
 
+
     static void Main(string[] args)
     {
         Console.SetBufferSize(consoleWidth, consoleHeight+10);
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        string question = GetQuestion(2);
-        string answer = GetAnswer(2);
+        StartGame();
+    }
+
+    private static void StartGame()
+    {
+        string question = GetQuestion(level);
+        string answer = GetAnswer(level);
 
         //PrintStartScreen(consoleWidth,consoleHeight);
         ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
 
         Object player = new Object();
 
-        player.x = consoleWidth / 2;
+        player.x = consoleWidth/2;
         player.y = consoleHeight - 4;
         player.str = "===";
         player.color = ConsoleColor.Red;
@@ -51,7 +57,7 @@ class UserInterface
 
                 if (pressedKey.Key == ConsoleKey.LeftArrow)
                 {
-                    if ((player.x - 1) >= 1)    // >= 1 Because of the boundaries of the user interface.
+                    if ((player.x - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
                     {
                         player.x = (player.x - 1);
                         PrintOnPosition(oldPosition + 2, player.y, " ", player.color);
@@ -59,7 +65,8 @@ class UserInterface
                 }
                 if (pressedKey.Key == ConsoleKey.RightArrow)
                 {
-                    if (player.x + 2 < (consoleWidth - 2))  // < ConsoleWidth - 2, because of the boundaries of the user interface.
+                    if (player.x + 2 < (consoleWidth - 2))
+                        // < ConsoleWidth - 2, because of the boundaries of the user interface.
                     {
                         player.x = (player.x + 1);
                         PrintOnPosition(oldPosition, player.y, " ", player.color);
@@ -73,7 +80,6 @@ class UserInterface
     static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
-        int heartsCount = 5;
         int questionLength = (consoleWidth - question.Length - 2);
 
         StringBuilder padding = new StringBuilder();
@@ -197,4 +203,26 @@ class UserInterface
         Console.ForegroundColor = color;
         Console.Write(str);
     }
+
+    
+    //Function to check the current answer is correct 
+    static void checkAnswer(string answer)
+    {
+        if (string.Equals(answer, GetAnswer(level)))
+        {
+            level ++;
+            score += GetAnswer(level).Length*5;
+            // restart main 
+        }
+        else
+        {
+            heartsCount--;
+            if (heartsCount == 0)
+            {
+                // gameover 
+            }
+            // restart main  
+        }
+    }
+
 }
