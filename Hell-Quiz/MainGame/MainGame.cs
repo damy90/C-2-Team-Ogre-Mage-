@@ -9,8 +9,8 @@ using System.Threading;
 
 class MainGame
 {
-    static int consoleWidth = Console.LargestWindowWidth;
-    static int consoleHeight = Console.LargestWindowHeight;
+    static int consoleWidth = Console.LargestWindowWidth - 2;
+    static int consoleHeight = Console.LargestWindowHeight - 1;
 
     static int oldPosition;
 
@@ -34,7 +34,7 @@ class MainGame
         string question = GetQuestion(2); //Must create a random generator for the questions (the questions must not repeat during game).
         string answer = GetAnswer(2);
 
-        PrintStartScreen(consoleWidth,consoleHeight);   // Start timer.
+        PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
         ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
 
         Object player = new Object();
