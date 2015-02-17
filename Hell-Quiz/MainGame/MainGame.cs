@@ -9,8 +9,8 @@ using System.Threading;
 
 class MainGame
 {
-    static int consoleWidth = 150;
-    static int consoleHeight = 70;
+    static int consoleWidth = Console.LargestWindowWidth;
+    static int consoleHeight = Console.LargestWindowHeight;
 
     static int oldPosition;
 
