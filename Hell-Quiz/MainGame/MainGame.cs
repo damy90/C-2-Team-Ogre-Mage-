@@ -1,5 +1,6 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,13 +10,18 @@ using System.Threading;
 
 class MainGame
 {
-    static int consoleWidth = Console.LargestWindowWidth - 2;
-    static int consoleHeight = Console.LargestWindowHeight - 1;
+    private static readonly Random random = new Random();
 
-    static int oldPosition;
+    static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();   //Load all questions from file.
+    static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();       //Load all answers from file.
+
+    static int consoleWidth = Console.LargestWindowWidth - 90;
+    static int consoleHeight = Console.LargestWindowHeight - 20;
 
     static int score = 0;
     static int livesCount = 3;
+
+    static int oldPosition;
 
     struct Object // Movement coordinates.
     {
@@ -31,11 +37,11 @@ class MainGame
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        string question = GetQuestion(2); //Must create a random generator for the questions (the questions must not repeat during game).
-        string answer = GetAnswer(2);
+        int nextQuestion = random.Next(questions.Count);
+        string question = GetQuestion(nextQuestion);     
+        string answer = GetAnswer(nextQuestion);
 
-        PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
-        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
+        StartGame(question, answer, consoleWidth, consoleHeight);
 
         Object player = new Object();
 
@@ -74,6 +80,12 @@ class MainGame
         }
     }
 
+    static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
+    {
+        PrintStartScreen(consoleWidth, consoleHeight);   // Timer start.
+        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
+    }
+
     static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
@@ -87,7 +99,7 @@ class MainGame
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
 
-
+        #region Draw Infobar
         Console.Write(new string(' ', consoleWidth));
 
         Console.Write(" LIVES: "
@@ -159,6 +171,7 @@ class MainGame
         Console.SetCursorPosition((consoleWidth / 2 - 10), consoleHeight - 2);
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write("O G R E  M A G E");
+        #endregion
 
         Console.ResetColor();
     }
@@ -171,15 +184,15 @@ class MainGame
 
     static string GetQuestion(int nextQuestion) // Gets the number of the question to be displayed.
     {
-        string[] questions = File.ReadAllLines(@"questions\questions.txt");
         string question = questions[nextQuestion];
+        questions.Remove(question);
         return question;
     }
 
     static string GetAnswer(int nextAnswer)     // Gets the number of the answer.
     {
-        string[] answers = File.ReadAllLines(@"questions\answers.txt");
         string answer = answers[nextAnswer];
+        answers.RemoveAt(nextAnswer);
         return answer;
     }
 
