@@ -13,6 +13,7 @@ class MainGame
     static int consoleHeight = Console.LargestWindowHeight - 1;
 
     static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();
+    static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
 
     static int oldPosition;
 
@@ -33,8 +34,10 @@ class MainGame
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        string question = GetRandomQuestion(); //Must create a random generator for the questions (the questions must not repeat during game).
-        string answer = GetAnswer(2);
+        Random rnd = new Random();
+        int nextQuestion = rnd.Next(questions.Count);
+        string question = GetRandomQuestion(nextQuestion); //Must create a random generator for the questions (the questions must not repeat during game).
+        string answer = GetAnswer(nextQuestion);
 
         PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
         ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
@@ -171,10 +174,9 @@ class MainGame
         Console.Write(str);
     }
 
-    static string GetRandomQuestion() // Gets the question to be displayed. TODO handle 0 questions left, Test in an actual game when ready
+    static string GetRandomQuestion(int nextQuestion) // Gets the question to be displayed. TODO handle 0 questions left, Test in an actual game when ready
     {
-        Random rnd = new Random();
-        int nextQuestion = rnd.Next(questions.Count);
+        
         string question = questions[nextQuestion];
         questions.Remove(question);
         return question;
@@ -182,8 +184,8 @@ class MainGame
 
     static string GetAnswer(int nextAnswer)     // Gets the number of the answer.
     {
-        string[] answers = File.ReadAllLines(@"questions\answers.txt");
         string answer = answers[nextAnswer];
+        answers.RemoveAt(nextAnswer);
         return answer;
     }
 
