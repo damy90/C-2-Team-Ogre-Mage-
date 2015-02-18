@@ -117,8 +117,6 @@ class FallingRocks
             }
 
             row = bottomRow;
-            Console.SetCursorPosition(0, 3);
-            Console.WriteLine("Test: Does writting a line above the gamefield offset it down?");
             Thread.Sleep(waitTime);
         }
 

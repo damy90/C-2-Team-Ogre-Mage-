@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,11 +53,35 @@ class MainGame
 
         PrintOnPosition(player.x, player.y, player.str, player.color);
 
+        int gameFieldWidth = consoleWidth - 2,
+            gameFieldHeigth = consoleHeight - 15,
+            row = 0;
+
+        char[][] gameField = new char[gameFieldHeigth][];
+        char[] letters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+        for (int i = 0; i < gameFieldHeigth; i++)
+        {
+            gameField[i] = new char[gameFieldWidth];
+            for (int j = 0; j < gameFieldWidth; j++)
+            {
+                gameField[i][j] = ' ';
+            }
+        }
+
+        var watch = Stopwatch.StartNew();
         while (true)
         {
+            if (watch.ElapsedMilliseconds >= 300)
+            {
+                GetNewGamefieldRow(gameFieldWidth, letters, gameField, row);
+                PrintGameField(gameFieldHeigth, gameField, player, ref row);
+                watch.Restart();
+            }
+            
+            //move player
             while (Console.KeyAvailable)
             {
-                //move player
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
                 oldPosition = player.x;
 
@@ -77,8 +102,43 @@ class MainGame
                     }
                 }
                 PrintOnPosition(player.x, player.y, player.str, player.color);
+            }
+        }
+    }
 
+    private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player,ref int row)
+    {
+        for (int j = 0, n = row; j < gameFieldHeigth; j++)
+        {
+            PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
+            if (n == 0)
+            {
+                n = gameFieldHeigth - 1;
+            }
+            else
+            {
+                n--;
+            }
+        }
 
+        row = (row == gameFieldHeigth - 1) ? 0 : row + 1;
+
+        PrintOnPosition(player.x, player.y, player.str, player.color);
+        return row;
+    }
+
+    private static void GetNewGamefieldRow(int gameFieldWidth, char[] rocks, char[][] gameField, int row)
+    {
+        for (int col = 0; col < gameFieldWidth; col++)
+        {
+            if (random.Next(0, 200) == 0)
+            {
+                int stone = random.Next(0, rocks.Length);
+                gameField[row][col] = rocks[stone];
+            }
+            else
+            {
+                gameField[row][col] = ' ';
             }
         }
     }
@@ -180,7 +240,7 @@ class MainGame
 
     static string GetRandomQuestion(int nextQuestion) // Gets the question to be displayed. TODO handle 0 questions left, Test in an actual game when ready
     {
-        
+
         string question = questions[nextQuestion];
         questions.Remove(question);
         return question;
