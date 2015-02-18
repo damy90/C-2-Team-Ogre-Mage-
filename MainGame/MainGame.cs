@@ -20,6 +20,8 @@ class MainGame
     static int score = 0;
     static int livesCount = 3;
 
+    private static readonly Random random = new Random();
+
     struct Object // Movement coordinates.
     {
         public int x;
@@ -34,8 +36,7 @@ class MainGame
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        Random rnd = new Random();
-        int nextQuestion = rnd.Next(questions.Count);
+        int nextQuestion = random.Next(questions.Count);
         string question = GetRandomQuestion(nextQuestion); //Must create a random generator for the questions (the questions must not repeat during game).
         string answer = GetAnswer(nextQuestion);
 
@@ -55,6 +56,7 @@ class MainGame
         {
             while (Console.KeyAvailable)
             {
+                //move player
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
                 oldPosition = player.x;
 
@@ -75,6 +77,8 @@ class MainGame
                     }
                 }
                 PrintOnPosition(player.x, player.y, player.str, player.color);
+
+
             }
         }
     }
