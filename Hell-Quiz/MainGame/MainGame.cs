@@ -10,10 +10,10 @@ using System.Threading;
 
 class MainGame
 {
-    private static readonly Random random = new Random();
+    private static readonly Random randomGenerator = new Random();   // Generator for pulling random questions.
 
-    static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();   //Load all questions from file.
-    static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();       //Load all answers from file.
+    static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();   // Load all questions from file.
+    static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();       // Load all answers from file.
 
     static int consoleWidth = Console.LargestWindowWidth - 90;
     static int consoleHeight = Console.LargestWindowHeight - 20;
@@ -37,7 +37,7 @@ class MainGame
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        int nextQuestion = random.Next(questions.Count);
+        int nextQuestion = randomGenerator.Next(questions.Count);
         string question = GetQuestion(nextQuestion);     
         string answer = GetAnswer(nextQuestion);
 
@@ -137,7 +137,6 @@ class MainGame
 
         Console.WriteLine(padding.Append(' ', consoleWidth));
         padding.Clear();
-
 
         // Print left boundary.
         for (int i = 10, k = 0; i < consoleHeight - 1; i++)
