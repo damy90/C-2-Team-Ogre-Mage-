@@ -55,7 +55,7 @@ class MainGame
 
         int gameFieldWidth = consoleWidth - 2,
             gameFieldHeigth = consoleHeight - 15,
-            row = 0;
+            bottomRow = 0;
 
         char[][] gameField = new char[gameFieldHeigth][];
         char[] letters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
@@ -74,8 +74,9 @@ class MainGame
         {
             if (watch.ElapsedMilliseconds >= 300)
             {
-                GetNewGamefieldRow(gameFieldWidth, letters, gameField, row);
-                PrintGameField(gameFieldHeigth, gameField, player, ref row);
+                //TODO check for collisions here
+                GetNewGamefieldRow(gameFieldWidth, letters, gameField, bottomRow);
+                PrintGameField(gameFieldHeigth, gameField, player, ref bottomRow);
                 watch.Restart();
             }
             
