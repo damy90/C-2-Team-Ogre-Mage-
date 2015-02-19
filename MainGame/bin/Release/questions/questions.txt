@@ -1,3 +1,0 @@
-Defining two methods with the same name but with different parameters is called: 
-Which company was the first to manufacture mobile phones?
-Which is the deepest lake in the world?
