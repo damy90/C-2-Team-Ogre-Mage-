@@ -31,8 +31,9 @@ internal class MainGame
 
     private static void Main(string[] args)
     {
-        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
-        Console.SetWindowSize(consoleWidth, consoleHeight);
+        Console.SetWindowSize(consoleWidth, consoleHeight); 
+        Console.SetBufferSize(consoleWidth, consoleHeight+1);//+10
+       
         Console.CursorVisible = false;
 
         int nextQuestion = random.Next(questions.Count);
@@ -159,7 +160,7 @@ internal class MainGame
                         PrintOnPosition(bomb.x, bomb.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("BOMB");
-                        //ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
+                        ModifyInfoBar(question, answer, consoleWidth, gameFieldTop);
                     }
                 }
                 else
