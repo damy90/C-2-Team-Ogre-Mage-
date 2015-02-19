@@ -15,7 +15,7 @@ class MainGame
     static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();   // Load all questions from file.
     static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();       // Load all answers from file.
 
-    static int consoleWidth = Console.LargestWindowWidth - 90;
+    static int consoleWidth = Console.LargestWindowWidth - 60;
     static int consoleHeight = Console.LargestWindowHeight - 20;
 
     static int score = 0;
@@ -38,10 +38,16 @@ class MainGame
         Console.CursorVisible = false;
 
         int nextQuestion = randomGenerator.Next(questions.Count);
-        string question = GetQuestion(nextQuestion);     
+        string question = GetQuestion(nextQuestion);
         string answer = GetAnswer(nextQuestion);
 
+        PrintStartScreen(consoleWidth, consoleHeight);   // Timer start.
         StartGame(question, answer, consoleWidth, consoleHeight);
+    }
+
+    static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
+    {
+        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
 
         Object player = new Object();
 
@@ -78,12 +84,6 @@ class MainGame
                 PrintOnPosition(player.x, player.y, player.str, player.color);
             }
         }
-    }
-
-    static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
-    {
-        PrintStartScreen(consoleWidth, consoleHeight);   // Timer start.
-        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
     }
 
     static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
@@ -174,6 +174,7 @@ class MainGame
 
         Console.ResetColor();
     }
+
     static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
     {
         Console.SetCursorPosition(x, y);
