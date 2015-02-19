@@ -16,7 +16,7 @@ internal class MainGame
     private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
     // Load all answers from file.
 
-    private static readonly int consoleWidth = 107;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+    private static readonly int consoleWidth = 120;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
     private static readonly int consoleHeight = 50;//Console.LargestWindowHeight - 20;
 
     private static int score = 0;
@@ -31,8 +31,9 @@ internal class MainGame
 
     private static void Main(string[] args)
     {
-        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
         Console.SetWindowSize(consoleWidth, consoleHeight);
+        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
+
         Console.CursorVisible = false;
 
         int nextQuestion = random.Next(questions.Count);
@@ -185,7 +186,7 @@ internal class MainGame
                         PrintOnPosition(letter.x, letter.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("LETTER");
-                        
+
                     }
                 }
                 else
