@@ -1,37 +1,29 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Globalization;
 using System.Threading;
 
-class MainGame
+internal class MainGame
 {
-    private static readonly Random randomGenerator = new Random();   // Generator for pulling random questions.
+    private static readonly Random randomGenerator = new Random(); // Generator for pulling random questions.
 
-    static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();   // Load all questions from file.
-    static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();       // Load all answers from file.
+    private static readonly List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();
+        // Load all questions from file.
 
-    static int consoleWidth = Console.LargestWindowWidth - 60;
-    static int consoleHeight = Console.LargestWindowHeight - 20;
+    private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
+        // Load all answers from file.
 
-    static int score = 0;
-    static int livesCount = 3;
+    private static readonly int consoleWidth = Console.LargestWindowWidth - 60;
+    private static readonly int consoleHeight = Console.LargestWindowHeight - 20;
 
-    static int oldPosition;
+    private static int score = 0;
+    private static int livesCount = 3;
 
-    struct Object // Movement coordinates.
-    {
-        public int x;
-        public int y;
-        public string str;
-        public ConsoleColor color;
-    }
+    private static int oldPosition;
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         Console.SetBufferSize(consoleWidth, consoleHeight + 10);
         Console.SetWindowSize(consoleWidth, consoleHeight);
@@ -41,17 +33,17 @@ class MainGame
         string question = GetQuestion(nextQuestion);
         string answer = GetAnswer(nextQuestion);
 
-        PrintStartScreen(consoleWidth, consoleHeight);   // Timer start.
+        PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
         StartGame(question, answer, consoleWidth, consoleHeight);
     }
 
-    static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
+    private static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
     {
         ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
 
-        Object player = new Object();
+        var player = new Object();
 
-        player.x = consoleWidth / 2;
+        player.x = consoleWidth/2;
         player.y = consoleHeight - 4;
         player.str = "===";
         player.color = ConsoleColor.Red;
@@ -67,7 +59,7 @@ class MainGame
 
                 if (pressedKey.Key == ConsoleKey.LeftArrow)
                 {
-                    if ((player.x - 1) >= 1)    // >= 1 Because of the boundaries of the user interface.
+                    if ((player.x - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
                     {
                         player.x = (player.x - 1);
                         PrintOnPosition(oldPosition + 2, player.y, " ", player.color);
@@ -75,7 +67,8 @@ class MainGame
                 }
                 if (pressedKey.Key == ConsoleKey.RightArrow)
                 {
-                    if (player.x + 2 < (consoleWidth - 2))  // < ConsoleWidth - 2, because of the boundaries of the user interface.
+                    if (player.x + 2 < (consoleWidth - 2))
+                        // < ConsoleWidth - 2, because of the boundaries of the user interface.
                     {
                         player.x = (player.x + 1);
                         PrintOnPosition(oldPosition, player.y, " ", player.color);
@@ -86,27 +79,28 @@ class MainGame
         }
     }
 
-    static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
+    private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
         int questionLength = (consoleWidth - question.Length - 2);
 
-        StringBuilder padding = new StringBuilder();
-        StringBuilder secondPadding = new StringBuilder();
-        StringBuilder thirdPadding = new StringBuilder();
+        var padding = new StringBuilder();
+        var secondPadding = new StringBuilder();
+        var thirdPadding = new StringBuilder();
 
         Console.SetCursorPosition(0, 0);
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
 
         #region Draw Infobar
+
         Console.Write(new string(' ', consoleWidth));
 
         Console.Write(" LIVES: "
-            + (new string(heart, livesCount))
-            + (new string(' ', consoleWidth - 21 - Convert.ToString(score).Length - (-3 + livesCount)))
-            + "SCORE: " + score
-            + (new string(' ', 3))
+                      + (new string(heart, livesCount))
+                      + (new string(' ', consoleWidth - 21 - Convert.ToString(score).Length - (-3 + livesCount)))
+                      + "SCORE: " + score
+                      + (new string(' ', 3))
             );
 
         Console.Write(new string(' ', consoleWidth));
@@ -129,7 +123,8 @@ class MainGame
         Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
         padding.Clear();
 
-        Console.Write(" " + padding.Append('*', answer.Length) + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
+        Console.Write(" " + padding.Append('*', answer.Length) +
+                      secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
         padding.Clear();
 
         Console.WriteLine(padding.Append(' ', consoleWidth));
@@ -167,47 +162,56 @@ class MainGame
             Console.Write(' ');
         }
         // Print Team name.
-        Console.SetCursorPosition((consoleWidth / 2 - 10), consoleHeight - 2);
+        Console.SetCursorPosition((consoleWidth/2 - 10), consoleHeight - 2);
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write("O G R E  M A G E");
+
         #endregion
 
         Console.ResetColor();
     }
 
-    static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
+    private static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
     {
         Console.SetCursorPosition(x, y);
         Console.ForegroundColor = color;
         Console.Write(str);
     }
 
-    static string GetQuestion(int nextQuestion) // Gets the number of the question to be displayed.
+    private static string GetQuestion(int nextQuestion) // Gets the number of the question to be displayed.
     {
         string question = questions[nextQuestion];
         questions.Remove(question);
         return question;
     }
 
-    static string GetAnswer(int nextAnswer)     // Gets the number of the answer.
+    private static string GetAnswer(int nextAnswer) // Gets the number of the answer.
     {
         string answer = answers[nextAnswer];
         answers.RemoveAt(nextAnswer);
         return answer;
     }
 
-    static void PrintStartScreen(int consoleHeight, int consoleWidth)
+    private static void PrintStartScreen(int consoleHeight, int consoleWidth)
     {
-        StringBuilder padding = new StringBuilder();
+        var padding = new StringBuilder();
         int count = 3;
         while (count > 0)
         {
-            Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
+            Console.SetCursorPosition((consoleHeight/2) - 6, (consoleWidth/2) - 2);
             Console.WriteLine("STARTING IN: {0}", count);
             Thread.Sleep(1000);
             count--;
         }
-        Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
+        Console.SetCursorPosition((consoleHeight/2) - 6, (consoleWidth/2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
+    }
+
+    private struct Object // Movement coordinates.
+    {
+        public ConsoleColor color;
+        public string str;
+        public int x;
+        public int y;
     }
 }
