@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading;
 
 internal class MainGame
 {
-    private static readonly Random randomGenerator = new Random(); // Generator for pulling random questions.
+    private static readonly Random random = new Random(); // Generator for pulling random questions.
 
     private static readonly List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();
         // Load all questions from file.
@@ -29,11 +30,11 @@ internal class MainGame
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.CursorVisible = false;
 
-        int nextQuestion = randomGenerator.Next(questions.Count);
+        int nextQuestion = random.Next(questions.Count);
         string question = GetQuestion(nextQuestion);
         string answer = GetAnswer(nextQuestion);
 
-        PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
+        // PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
         StartGame(question, answer, consoleWidth, consoleHeight);
     }
 
@@ -50,8 +51,38 @@ internal class MainGame
 
         PrintOnPosition(player.x, player.y, player.str, player.color);
 
+        #region Dany letters drop
+        int gameFieldWidth = consoleWidth - 2,
+            gameFieldHeigth = consoleHeight - 15,
+            bottomRow = 0;
+
+        char[][] gameField = new char[gameFieldHeigth][];
+        char[] letters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+        for (int i = 0; i < gameFieldHeigth; i++)
+        {
+            gameField[i] = new char[gameFieldWidth];
+            for (int j = 0; j < gameFieldWidth; j++)
+            {
+                gameField[i][j] = ' ';
+            }
+        }
+
+        var watch = Stopwatch.StartNew();
+        #endregion
+
         while (true)
         {
+            #region Dany letterz drop
+            if (watch.ElapsedMilliseconds >= 300)
+            {
+                //TODO check for collisions here
+                GetNewGamefieldRow(gameFieldWidth, letters, gameField, bottomRow);
+                PrintGameField(gameFieldHeigth, gameField, player, ref bottomRow);
+                watch.Restart();
+            }
+            #endregion
+
             while (Console.KeyAvailable)
             {
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
@@ -205,6 +236,43 @@ internal class MainGame
         }
         Console.SetCursorPosition((consoleHeight/2) - 6, (consoleWidth/2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
+    }
+
+    private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player, ref int row)
+    {
+        for (int j = 0, n = row; j < gameFieldHeigth; j++)
+        {
+            PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
+            if (n == 0)
+            {
+                n = gameFieldHeigth - 1;
+            }
+            else
+            {
+                n--;
+            }
+        }
+
+        row = (row == gameFieldHeigth - 1) ? 0 : row + 1;
+
+        PrintOnPosition(player.x, player.y, player.str, player.color);
+        return row;
+    }
+
+    private static void GetNewGamefieldRow(int gameFieldWidth, char[] rocks, char[][] gameField, int row)
+    {
+        for (int col = 0; col < gameFieldWidth; col++)
+        {
+            if (random.Next(0, 200) == 0)
+            {
+                int stone = random.Next(0, rocks.Length);
+                gameField[row][col] = rocks[stone];
+            }
+            else
+            {
+                gameField[row][col] = ' ';
+            }
+        }
     }
 
     private struct Object // Movement coordinates.
