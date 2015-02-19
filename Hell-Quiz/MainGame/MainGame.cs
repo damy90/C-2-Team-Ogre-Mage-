@@ -16,7 +16,7 @@ internal class MainGame
     private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
     // Load all answers from file.
 
-    private static readonly int consoleWidth = 120;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+    private static readonly int consoleWidth = 107;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
     private static readonly int consoleHeight = 50;//Console.LargestWindowHeight - 20;
 
     private static int score = 0;
@@ -31,15 +31,9 @@ internal class MainGame
 
     private static void Main(string[] args)
     {
-<<<<<<< HEAD
         Console.SetWindowSize(consoleWidth, consoleHeight); 
         Console.SetBufferSize(consoleWidth, consoleHeight+1);//+10
        
-=======
-        Console.SetWindowSize(consoleWidth, consoleHeight);
-        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
-
->>>>>>> a1d2491753f525369ea3dc72e77a92fd4c9351e0
         Console.CursorVisible = false;
 
         int nextQuestion = random.Next(questions.Count);
@@ -159,7 +153,7 @@ internal class MainGame
 
                 if (bomb.y == consoleHeight - 4)
                 {
-                    if (bomb.x == player.x || bomb.x == player.x + 1 || bomb.x == player.x + 2)
+                    if (bomb.x == player.x || bomb.x == player.x + 1 || bomb.x == player.x + 2) 
                     {
                         PrintOnPosition(bomb.x, bomb.y, " ", ConsoleColor.White);
                         livesCount--;
@@ -192,7 +186,7 @@ internal class MainGame
                         PrintOnPosition(letter.x, letter.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("LETTER");
-
+                        ModifyInfoBar(question, container.ToString(), consoleWidth, gameFieldTop);
                     }
                 }
                 else
@@ -219,6 +213,7 @@ internal class MainGame
                         PrintOnPosition(del.x, del.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("DEL");
+                        ModifyInfoBar(question, answer, consoleWidth, gameFieldTop);
                     }
                 }
                 else
@@ -287,6 +282,12 @@ internal class MainGame
 
         Console.WriteLine(padding.Append(' ', consoleWidth));
         padding.Clear();
+        // Check if we call the method for re-drawing after collision and if so re-draw only the infoBar
+        if (consoleHeight == gameFieldTop)
+        {
+            Console.ResetColor();
+            return;
+        }
 
         // Print left boundary.
         for (int i = 10, k = 0; i < consoleHeight - 1; i++)
@@ -294,6 +295,8 @@ internal class MainGame
             Console.SetCursorPosition(k, i);
             Console.Write(' ');
         }
+
+        
         // Print bottom boundary.
         for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
         {
