@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 
-internal class MainGame
+public class MainGame
 {
     private static readonly Random random = new Random(); // Generator for pulling random questions.
 
@@ -16,32 +15,37 @@ internal class MainGame
     private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
     // Load all answers from file.
 
-    private static readonly int consoleWidth = 107;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
-    private static readonly int consoleHeight = 50;//Console.LargestWindowHeight - 20;
+    private static readonly int consoleWidth = 107;
+    //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+
+    private static readonly int consoleHeight = 50; //Console.LargestWindowHeight - 20;
 
     private static int score = 0;
-    static int livesCount = 3;
-    static int gameFieldTop = 12;
-    static int gameFiledBottom = 6;
-    static char[] container = "---------".ToCharArray();
-    static int index = 0;
+    private static int livesCount = 3;
+    private static int gameFieldTop = 12;
+    private static int gameFiledBottom = 6;
+    private static string container;
+    private static int index;
+    private static char[] addLetter;
 
 
     private static int oldPosition;
 
     private static void Main(string[] args)
     {
-        Console.SetWindowSize(consoleWidth, consoleHeight); 
-        Console.SetBufferSize(consoleWidth, consoleHeight+1);//+10
-       
+        Console.SetWindowSize(consoleWidth, consoleHeight);
+        Console.SetBufferSize(consoleWidth, consoleHeight + 1); //+10
+
         Console.CursorVisible = false;
 
         int nextQuestion = random.Next(questions.Count);
         string question = GetQuestion(nextQuestion);
         string answer = GetAnswer(nextQuestion);
+        container = new string('*', answer.Length);
+
 
         // PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
-        StartGame(question, answer, consoleWidth, consoleHeight);
+        StartGame(question, container, consoleWidth, consoleHeight);
     }
 
     private static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
@@ -85,39 +89,10 @@ internal class MainGame
 
         PrintOnPosition(del.x, del.y, del.str, del.color);
 
-        #region Dany letters drop // comented
-        //int gameFieldWidth = consoleWidth - 2,
-        //    gameFieldHeigth = consoleHeight - 15,
-        //    bottomRow = 0;
-
-        //char[][] gameField = new char[gameFieldHeigth][];
-        //char[] letters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-
-        //for (int i = 0; i < gameFieldHeigth; i++)
-        //{
-        //    gameField[i] = new char[gameFieldWidth];
-        //    for (int j = 0; j < gameFieldWidth; j++)
-        //    {
-        //        gameField[i][j] = ' ';
-        //    }
-        //}
-
-        //var watch = Stopwatch.StartNew();
-        #endregion
-
         while (true)
         {
-            #region Dany letterz drop // comented
-            //if (watch.ElapsedMilliseconds >= 300)
-            //{
-            //    //TODO check for collisions here
-            //    GetNewGamefieldRow(gameFieldWidth, letters, gameField, bottomRow);
-            //    PrintGameField(gameFieldHeigth, gameField, player, ref bottomRow);
-
-            //    watch.Restart();
-            //}
-            #endregion
             #region Pressed Key, Moving Playes
+
             while (Console.KeyAvailable)
             {
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
@@ -142,6 +117,7 @@ internal class MainGame
                 }
                 PrintOnPosition(player.x, player.y, player.str, player.color);
             }
+
             #endregion
 
             //Movе Falling Bombs last edit - to try with Queue
@@ -153,7 +129,7 @@ internal class MainGame
 
                 if (bomb.y == consoleHeight - 4)
                 {
-                    if (bomb.x == player.x || bomb.x == player.x + 1 || bomb.x == player.x + 2) 
+                    if (bomb.x == player.x || bomb.x == player.x + 1 || bomb.x == player.x + 2)
                     {
                         PrintOnPosition(bomb.x, bomb.y, " ", ConsoleColor.White);
                         livesCount--;
@@ -181,19 +157,20 @@ internal class MainGame
                     if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
                     {
                         PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                        container[index] = letter.c;
+                        addLetter = container.ToCharArray();
+                        addLetter[index] = letter.c;
                         index++;
                         PrintOnPosition(letter.x, letter.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("LETTER");
-                        ModifyInfoBar(question, container.ToString(), consoleWidth, gameFieldTop);
+                        container = string.Join("", addLetter);
+                        ModifyInfoBar(question, container, consoleWidth, gameFieldTop);
                     }
                 }
                 else
                 {
                     PrintOnPosition(letter.x, letter.y, letter.c, letter.color);
                 }
-
             }
 
             //Movе Falling DEL last edit - to try with Queue
@@ -208,19 +185,20 @@ internal class MainGame
                     if (del.x == player.x || del.x == player.x + 1 || del.x == player.x + 2)
                     {
                         PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                        container[index] = ' ';
+                        addLetter = container.ToCharArray();
+                        addLetter[index] = '*';
                         index--;
                         PrintOnPosition(del.x, del.y, "=", player.color);
                         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
                         Console.WriteLine("DEL");
-                        ModifyInfoBar(question, answer, consoleWidth, gameFieldTop);
+                        container = string.Join("", addLetter);
+                        ModifyInfoBar(question, container, consoleWidth, gameFieldTop);
                     }
                 }
                 else
                 {
                     PrintOnPosition(del.x, del.y, del.c, del.color);
                 }
-
             }
 
             Console.SetCursorPosition(75, 25);
@@ -273,8 +251,7 @@ internal class MainGame
         Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
         padding.Clear();
 
-        Console.Write(" " + padding.Append('*', answer.Length) +
-                      secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
+        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
         padding.Clear();
 
         Console.WriteLine(padding.Append(' ', consoleWidth));
@@ -296,7 +273,7 @@ internal class MainGame
             Console.Write(' ');
         }
 
-        
+
         // Print bottom boundary.
         for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
         {
@@ -335,6 +312,7 @@ internal class MainGame
         Console.ForegroundColor = color;
         Console.Write(str);
     }
+
     private static void PrintOnPosition(int x, int y, char c, ConsoleColor color)
     {
         Console.SetCursorPosition(x, y);
@@ -371,51 +349,12 @@ internal class MainGame
         Console.WriteLine(padding.Append(' ', 14));
     }
 
-    private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player, ref int row)
-    {
-        for (int j = 0, n = row; j < gameFieldHeigth; j++)
-        {
-            PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
-            if (n == 0)
-            {
-                n = gameFieldHeigth - 1;
-            }
-            else
-            {
-                n--;
-            }
-        }
-
-        row = (row == gameFieldHeigth - 1) ? 0 : row + 1;
-
-        PrintOnPosition(player.x, player.y, player.str, player.color);
-        return row;
-    }
-
-    private static void GetNewGamefieldRow(int gameFieldWidth, char[] rocks, char[][] gameField, int row)
-    {
-        for (int col = 0; col < gameFieldWidth; col++)
-        {
-            if (random.Next(0, 200) == 0)
-            {
-                int stone = random.Next(0, rocks.Length);
-                gameField[row][col] = rocks[stone];
-            }
-            else
-            {
-                gameField[row][col] = ' ';
-            }
-
-        }
-    }
-
     private struct Object // Movement coordinates.
     {
+        public char c;
         public ConsoleColor color;
         public string str;
-        public char c;
         public int x;
         public int y;
-
     }
 }
