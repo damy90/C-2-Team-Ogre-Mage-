@@ -10,8 +10,10 @@ using System.Threading;
 
 class MainGame
 {
-    static int consoleWidth = Console.LargestWindowWidth - 2;
-    static int consoleHeight = Console.LargestWindowHeight - 1;
+    static int consoleWidth = 107;//Console.LargestWindowWidth - 2;
+    static int consoleHeight = 50;//Console.LargestWindowHeight - 1;
+
+    private static int gameFieldTopPosition = 12;
 
     static List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();
     static List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
@@ -123,7 +125,7 @@ class MainGame
     {
         for (int j = 0, n = bottomRow; j < gameFieldHeigth; j++)
         {
-            PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
+            PrintOnPosition(1, j + gameFieldTopPosition, new string(gameField[n]), ConsoleColor.White);
 
             //change color of special chars
             var delIndexes = Enumerable.Range(0, gameField[n].Length)
@@ -134,11 +136,11 @@ class MainGame
                 .ToList();
             foreach (int index in delIndexes)
             {
-                PrintOnPosition(index + 1, j + 12, "<", ConsoleColor.Green);
+                PrintOnPosition(index + 1, j + gameFieldTopPosition, "<", ConsoleColor.Green);
             }
             foreach (int index in bombIndexes)
             {
-                PrintOnPosition(index + 1, j + 12, "&", ConsoleColor.Red);
+                PrintOnPosition(index + 1, j + gameFieldTopPosition, "&", ConsoleColor.Red);
             }
 
             //Determines the order in which the rows in the array are printed
