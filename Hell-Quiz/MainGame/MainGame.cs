@@ -35,6 +35,9 @@ class MainGame
         public ConsoleColor color;
     }
 
+    private static int lettersSpeed = 300;
+    private static string container;
+
     static void Main(string[] args)
     {
         Console.SetBufferSize(consoleWidth, consoleHeight + 10);
@@ -45,8 +48,10 @@ class MainGame
         string question = GetRandomQuestion(nextQuestion); //Must create a random generator for the questions (the questions must not repeat during game).
         string answer = GetAnswer(nextQuestion);
 
+        container = new string('*', answer.Length);
+
         //PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
-        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
+        ModifyInfoBar(question, container, consoleWidth, consoleHeight);
 
         Object player = new Object();
 
@@ -63,7 +68,6 @@ class MainGame
 
         char[][] gameField = new char[gameFieldHeigth][];
 
-
         for (int i = 0; i < gameFieldHeigth; i++)
         {
             gameField[i] = new char[gameFieldWidth];
@@ -74,16 +78,33 @@ class MainGame
         }
 
         var watch = Stopwatch.StartNew();
+        string playerAnswewr = "";
         while (true)
         {
-            if (watch.ElapsedMilliseconds >= 300)
+            if (watch.ElapsedMilliseconds >= lettersSpeed)
             {
                 //collision detection
                 for (int i = 0; i < 3; i++)
                 {
                     if (gameField[bottomRow][player.x + i - 1] != ' ')
                     {
-                        PrintOnPosition(10, 10, "BANG! " + gameField[bottomRow][player.x + i - 1], ConsoleColor.Red);
+                        
+                        if (gameField[bottomRow][player.x + i - 1] == '<')
+                        {
+                            playerAnswewr = playerAnswewr.Substring(0, playerAnswewr.Length - 1);
+                            container = playerAnswewr.PadRight(answer.Length, '*');
+                            ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                        }
+                        else if (gameField[bottomRow][player.x + i - 1] == '&')
+                        {
+                            PrintOnPosition(10, 10, "BANG! ", ConsoleColor.Red);
+                        }
+                        else
+                        {
+                            playerAnswewr += gameField[bottomRow][player.x + i - 1];
+                            container = playerAnswewr.PadRight(answer.Length, '*');
+                            ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                        }
                     }
                 }
 
@@ -226,7 +247,7 @@ class MainGame
         Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
         padding.Clear();
 
-        Console.Write(" " + padding.Append('*', answer.Length) + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
+        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
         padding.Clear();
 
         Console.WriteLine(padding.Append(' ', consoleWidth));
