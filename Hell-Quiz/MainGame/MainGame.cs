@@ -45,7 +45,7 @@ class MainGame
         string question = GetRandomQuestion(nextQuestion); //Must create a random generator for the questions (the questions must not repeat during game).
         string answer = GetAnswer(nextQuestion);
 
-        PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
+        //PrintStartScreen(consoleWidth, consoleHeight);   // Start timer.
         ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
 
         Object player = new Object();
@@ -182,7 +182,7 @@ class MainGame
         }
     }
 
-    static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
+    private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
         int questionLength = (consoleWidth - question.Length - 2);
@@ -195,6 +195,7 @@ class MainGame
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
 
+        #region Draw Infobar
 
         Console.Write(new string(' ', consoleWidth));
 
@@ -268,6 +269,7 @@ class MainGame
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write("O G R E  M A G E");
 
+        #endregion
         Console.ResetColor();
     }
     static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
