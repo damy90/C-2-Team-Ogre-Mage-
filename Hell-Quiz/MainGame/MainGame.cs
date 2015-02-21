@@ -88,7 +88,7 @@ class MainGame
                 {
                     if (gameField[bottomRow][player.x + i - 1] != ' ')
                     {
-                        
+
                         if (gameField[bottomRow][player.x + i - 1] == '<')
                         {
                             playerAnswewr = playerAnswewr.Substring(0, playerAnswewr.Length - 1);
@@ -101,9 +101,13 @@ class MainGame
                         }
                         else
                         {
-                            playerAnswewr += gameField[bottomRow][player.x + i - 1];
-                            container = playerAnswewr.PadRight(answer.Length, '*');
-                            ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                            //answer overflow check
+                            if (playerAnswewr.Length < answer.Length)
+                            {
+                                playerAnswewr += gameField[bottomRow][player.x + i - 1];
+                                container = playerAnswewr.PadRight(answer.Length, '*');
+                                ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                            }
                         }
                     }
                 }
