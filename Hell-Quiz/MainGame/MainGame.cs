@@ -23,7 +23,7 @@ class MainGame
     static int score = 0;
     static int livesCount = 3;
 
-    static List<char> symbols = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
+    static List<char> symbols = new List<char> { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
 
     private static readonly Random random = new Random();
 
@@ -47,6 +47,8 @@ class MainGame
         int nextQuestion = random.Next(questions.Count);
         string question = GetRandomQuestion(nextQuestion); //Must create a random generator for the questions (the questions must not repeat during game).
         string answer = GetAnswer(nextQuestion);
+
+        IncreaseCharactersOccurances(answer, 2);
 
         container = new string('*', answer.Length);
 
@@ -118,9 +120,31 @@ class MainGame
             }
         }
     }
- 
+
+    private static void IncreaseCharactersOccurances(string characrers, int multiplier)
+    {
+        for (int i = 0; i < multiplier; i++)
+        {
+            symbols.AddRange(characrers);
+        }
+    }
+
+    private static void ReduceCharactersOccurances(string characrers, int divisor)
+    {
+        for (int i = 0; i < divisor; i++)
+        {
+            foreach (char characrer in characrers)
+            {
+                int count = symbols.Count(f => f == characrer);
+                if (count>1)
+                {
+                    symbols.Remove(characrer);
+                }
+            }
+        }
+    }
     //TODO: more fields, less parametters to pass on
-    private static string DetectPlayerCollisions(char[][] gameField, int bottomRow, Object player,string answer, string question, ref string playerAnswewr)
+    private static string DetectPlayerCollisions(char[][] gameField, int bottomRow, Object player, string answer, string question, ref string playerAnswewr)
     {
         for (int i = 0; i < 3; i++)
         {
