@@ -202,8 +202,8 @@ class MainGame
         {
             if (random.Next(0, 200) == 0)
             {
-                int stone = random.Next(0, symbols.Count);
-                gameField[row][col] = symbols[stone];
+                int charIndex = random.Next(0, symbols.Count);
+                gameField[row][col] = symbols[charIndex];
             }
             else
             {
