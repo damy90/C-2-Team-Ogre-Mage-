@@ -74,11 +74,12 @@ class MainGame
         {
             if (watch.ElapsedMilliseconds >= 300)
             {
+                //collision detection
                 for (int i = 0; i < 3; i++)
                 {
                     if (gameField[bottomRow][player.x + i - 1] != ' ')
                     {
-                        PrintOnPosition(10, 10, "BANG!", ConsoleColor.Red);
+                        PrintOnPosition(10, 10, "BANG! " + gameField[bottomRow][player.x + i - 1], ConsoleColor.Red);
                     }
                 }
 
@@ -119,6 +120,24 @@ class MainGame
         for (int j = 0, n = row; j < gameFieldHeigth; j++)
         {
             PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
+            
+            //change color of special chars
+            var delIndexes = Enumerable.Range(0, gameField[n].Length)
+                .Where(i => gameField[n][i] == '<')
+                .ToList();
+            var bombIndexes = Enumerable.Range(0, gameField[n].Length)
+                .Where(i => gameField[n][i] == '&')
+                .ToList();
+            foreach (int index in delIndexes)
+            {
+                PrintOnPosition(index + 1, j + 12, "<", ConsoleColor.Green);
+            }
+            foreach (int index in bombIndexes)
+            {
+                PrintOnPosition(index + 1, j + 12, "&", ConsoleColor.Red);
+            }
+
+            //Determines the order in which the rows in the array are printed
             if (n == 0)
             {
                 n = gameFieldHeigth - 1;
