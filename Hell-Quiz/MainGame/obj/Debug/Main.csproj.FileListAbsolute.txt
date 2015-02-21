@@ -1,6 +1,0 @@
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\bin\Debug\Main.exe.config
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\bin\Debug\Main.exe
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\bin\Debug\Main.pdb
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\obj\Debug\Main.csprojResolveAssemblyReference.cache
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\obj\Debug\Main.exe
-Z:\VisualStudio Projects\git-repos\C-2-Team-Ogre-Mage-\MainGame\obj\Debug\Main.pdb
