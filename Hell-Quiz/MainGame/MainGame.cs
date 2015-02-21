@@ -83,34 +83,7 @@ class MainGame
         {
             if (watch.ElapsedMilliseconds >= lettersSpeed)
             {
-                //collision detection
-                for (int i = 0; i < 3; i++)
-                {
-                    if (gameField[bottomRow][player.x + i - 1] != ' ')
-                    {
-
-                        if (gameField[bottomRow][player.x + i - 1] == '<')
-                        {
-                            playerAnswewr = playerAnswewr.Substring(0, playerAnswewr.Length - 1);
-                            container = playerAnswewr.PadRight(answer.Length, '*');
-                            ModifyInfoBar(question, container, consoleWidth, consoleHeight);
-                        }
-                        else if (gameField[bottomRow][player.x + i - 1] == '&')
-                        {
-                            PrintOnPosition(10, 10, "BANG! ", ConsoleColor.Red);
-                        }
-                        else
-                        {
-                            //answer overflow check
-                            if (playerAnswewr.Length < answer.Length)
-                            {
-                                playerAnswewr += gameField[bottomRow][player.x + i - 1];
-                                container = playerAnswewr.PadRight(answer.Length, '*');
-                                ModifyInfoBar(question, container, consoleWidth, consoleHeight);
-                            }
-                        }
-                    }
-                }
+                DetectPlayerCollisions(gameField, bottomRow, player, answer, question, ref playerAnswewr);
 
                 // TODO: if symbols remains static use it directly, don't pass it to method
                 GetNewGamefieldRow(gameFieldWidth, symbols, gameField, bottomRow);
@@ -144,6 +117,38 @@ class MainGame
                 PrintOnPosition(player.x, player.y, player.str, player.color);
             }
         }
+    }
+ 
+    //TODO: more fields, less parametters to pass on
+    private static string DetectPlayerCollisions(char[][] gameField, int bottomRow, Object player,string answer, string question, ref string playerAnswewr)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (gameField[bottomRow][player.x + i - 1] != ' ')
+            {
+                if (gameField[bottomRow][player.x + i - 1] == '<')
+                {
+                    playerAnswewr = playerAnswewr.Substring(0, playerAnswewr.Length - 1);
+                    container = playerAnswewr.PadRight(answer.Length, '*');
+                    ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                }
+                else if (gameField[bottomRow][player.x + i - 1] == '&')
+                {
+                    PrintOnPosition(10, 10, "BANG! ", ConsoleColor.Red);
+                }
+                else
+                {
+                    //answer overflow check
+                    if (playerAnswewr.Length < answer.Length)
+                    {
+                        playerAnswewr += gameField[bottomRow][player.x + i - 1];
+                        container = playerAnswewr.PadRight(answer.Length, '*');
+                        ModifyInfoBar(question, container, consoleWidth, consoleHeight);
+                    }
+                }
+            }
+        }
+        return playerAnswewr;
     }
 
     private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player, int bottomRow)
