@@ -201,11 +201,6 @@ class MainGame
             if (n == 0)
             {
                 n = gameFieldHeigth - 1;
-                //TODO What if I remove a non existing symbol?
-                //test increasing the frecuency of bombs
-                //symbols.Add('&');
-                //test decreasing the frequency (the two should balance eachother out in this test) 
-                //symbols.Remove('&');
             }
             else
             {
