@@ -21,7 +21,7 @@ class MainGame
     static int score = 0;
     static int livesCount = 3;
 
-    static List <char> symbols = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
+    static List<char> symbols = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
 
     private static readonly Random random = new Random();
 
@@ -60,7 +60,7 @@ class MainGame
             bottomRow = 0;
 
         char[][] gameField = new char[gameFieldHeigth][];
-        
+
 
         for (int i = 0; i < gameFieldHeigth; i++)
         {
@@ -85,8 +85,10 @@ class MainGame
                     }
                 }
 
+                // TODO: if symbols remains static use it directly, don't pass it to method
                 GetNewGamefieldRow(gameFieldWidth, symbols, gameField, bottomRow);
-                PrintGameField(gameFieldHeigth, gameField, player, ref bottomRow);
+                // The bottom row by order of printing
+                bottomRow = PrintGameField(gameFieldHeigth, gameField, player, bottomRow);
                 watch.Restart();
             }
 
@@ -117,12 +119,12 @@ class MainGame
         }
     }
 
-    private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player, ref int row)
+    private static int PrintGameField(int gameFieldHeigth, char[][] gameField, Object player, int bottomRow)
     {
-        for (int j = 0, n = row; j < gameFieldHeigth; j++)
+        for (int j = 0, n = bottomRow; j < gameFieldHeigth; j++)
         {
             PrintOnPosition(1, j + 12, new string(gameField[n]), ConsoleColor.White);
-            
+
             //change color of special chars
             var delIndexes = Enumerable.Range(0, gameField[n].Length)
                 .Where(i => gameField[n][i] == '<')
@@ -143,6 +145,7 @@ class MainGame
             if (n == 0)
             {
                 n = gameFieldHeigth - 1;
+                //TODO What if I remove a non existing symbol?
                 //test increasing the frecuency of bombs
                 //symbols.Add('&');
                 //test decreasing the frequency (the two should balance eachother out in this test) 
@@ -155,10 +158,10 @@ class MainGame
         }
 
         // The bottom row by order of printing
-        row = (row == gameFieldHeigth - 1) ? 0 : row + 1;
+        bottomRow = (bottomRow == gameFieldHeigth - 1) ? 0 : bottomRow + 1;
 
         PrintOnPosition(player.x, player.y, player.str, player.color);
-        return row;
+        return bottomRow;
     }
 
     private static void GetNewGamefieldRow(int gameFieldWidth, List<char> symbols, char[][] gameField, int row)
