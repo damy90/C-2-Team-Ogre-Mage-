@@ -21,6 +21,8 @@ class MainGame
     static int score = 0;
     static int livesCount = 3;
 
+    static List <char> symbols = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
+
     private static readonly Random random = new Random();
 
     struct Object // Movement coordinates.
@@ -58,7 +60,7 @@ class MainGame
             bottomRow = 0;
 
         char[][] gameField = new char[gameFieldHeigth][];
-        char[] symbols = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
+        
 
         for (int i = 0; i < gameFieldHeigth; i++)
         {
@@ -141,6 +143,10 @@ class MainGame
             if (n == 0)
             {
                 n = gameFieldHeigth - 1;
+                //test increasing the frecuency of bombs
+                //symbols.Add('&');
+                //test decreasing the frequency (the two should balance eachother out in this test) 
+                //symbols.Remove('&');
             }
             else
             {
@@ -148,20 +154,21 @@ class MainGame
             }
         }
 
+        // The bottom row by order of printing
         row = (row == gameFieldHeigth - 1) ? 0 : row + 1;
 
         PrintOnPosition(player.x, player.y, player.str, player.color);
         return row;
     }
 
-    private static void GetNewGamefieldRow(int gameFieldWidth, char[] rocks, char[][] gameField, int row)
+    private static void GetNewGamefieldRow(int gameFieldWidth, List<char> symbols, char[][] gameField, int row)
     {
         for (int col = 0; col < gameFieldWidth; col++)
         {
             if (random.Next(0, 200) == 0)
             {
-                int stone = random.Next(0, rocks.Length);
-                gameField[row][col] = rocks[stone];
+                int stone = random.Next(0, symbols.Count);
+                gameField[row][col] = symbols[stone];
             }
             else
             {
