@@ -284,6 +284,12 @@ class MainGame
         Console.WriteLine(padding.Append(' ', consoleWidth));
         padding.Clear();
 
+        // Check if we call the method for re-drawing after collision and if so re-draw only the infoBar
+        if (Console.CursorTop > gameFieldTopPosition+1)
+        {
+            Console.ResetColor();
+            return;
+        }
 
         // Print left boundary.
         for (int i = 10, k = 0; i < consoleHeight - 1; i++)
