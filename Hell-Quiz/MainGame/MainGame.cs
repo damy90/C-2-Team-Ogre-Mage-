@@ -136,7 +136,7 @@ class MainGame
             foreach (char characrer in characrers)
             {
                 int count = symbols.Count(f => f == characrer);
-                if (count>1)
+                if (count > 1)
                 {
                     symbols.Remove(characrer);
                 }
@@ -292,7 +292,8 @@ class MainGame
             Console.Write(' ');
         }
         // Print bottom boundary.
-        for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
+        //consoleWidth-1 - jumping console
+        for (int i = consoleHeight - 1, k = 0; k < consoleWidth-1; k++)
         {
             Console.SetCursorPosition(k, i);
             Console.Write(' ');
