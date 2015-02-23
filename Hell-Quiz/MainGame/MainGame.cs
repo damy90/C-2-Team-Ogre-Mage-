@@ -23,7 +23,7 @@ class MainGame
     static int score = 0;
     static int livesCount = 3;
 
-    static List<char> symbols = new List<char> { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
+    static List<char> symbols = new List<char> { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '&', '<' };//TODO change to list, add and remoove bonus characters to controll the frequency
 
     private static readonly Random random = new Random();
 
@@ -240,6 +240,11 @@ class MainGame
         StringBuilder secondPadding = new StringBuilder();
         StringBuilder thirdPadding = new StringBuilder();
 
+        bool isirstDraw = true;
+        if (Console.CursorTop > gameFieldTopPosition + 1)
+        {
+            isirstDraw = false;
+        }
         Console.SetCursorPosition(0, 0);
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -285,7 +290,7 @@ class MainGame
         padding.Clear();
 
         // Check if we call the method for re-drawing after collision and if so re-draw only the infoBar
-        if (Console.CursorTop > gameFieldTopPosition+1)
+        if (!isirstDraw)
         {
             Console.ResetColor();
             return;
@@ -299,7 +304,7 @@ class MainGame
         }
         // Print bottom boundary.
         //consoleWidth-1 - jumping console
-        for (int i = consoleHeight - 1, k = 0; k < consoleWidth-1; k++)
+        for (int i = consoleHeight - 1, k = 0; k < consoleWidth - 1; k++)
         {
             Console.SetCursorPosition(k, i);
             Console.Write(' ');
