@@ -119,10 +119,10 @@ internal class MainGame
                 var letter = new Object();
 
                 letter.x = randomGenerator.Next(2, consoleWidth - 2);
-                letter.y = gameFieldTop;                
+                letter.y = gameFieldTop;
                 // letter.c = (char) randomGenerator(65, 91) <-- Drop lettes A-Z
                 // The code below drop only letters from the answer
-                letter.c = (char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length - 1)]; 
+                letter.c = (char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)];
                 letter.color = ConsoleColor.White;
                 letters.Add(letter);
                 watchLetters.Restart();
@@ -184,7 +184,7 @@ internal class MainGame
                     {
                         PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
                         letter.y = letter.y + 1M;
-                       
+
                         if (letter.y == consoleHeight - 4)
                         {
                             if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
