@@ -2,16 +2,16 @@
 
 class Player : GameFieldObject
 {
-    Player(int playerX, int playerY)
+    public Player(int playerX, int playerY)
     {
         Str = "===";
         Color = ConsoleColor.Red;
-        XPosition = playerX;
-        YPosition = playerY;
+        X = playerX;
+        Y = playerY;
     }
 
-    public void MovePlayer(byte newPosX)
+    public void MovePlayer(int increment)
     {
-        XPosition = newPosX;
+        X += increment;
     }
 }

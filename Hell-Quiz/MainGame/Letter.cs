@@ -4,14 +4,14 @@
     {
         public Letter(int gameFieldTop, int xPos, string letter)
         {
-            XPosition = xPos;
-            YPosition = gameFieldTop;
+            X = xPos;
+            Y = gameFieldTop;
             Str = letter;
             Color = ConsoleColor.White;
         }
 
         public void MoveDown()
         {
-            YPosition--;
+            Y--;
         }
     }
