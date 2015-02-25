@@ -30,10 +30,6 @@ internal class MainGame
     static int nextQuestion = random.Next(questions.Count);
     static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
 
-    static StringBuilder padding = new StringBuilder();
-    static StringBuilder secondPadding = new StringBuilder();
-    static StringBuilder thirdPadding = new StringBuilder();
-
     private static int oldPosition;
 
     static void Main(string[] args)
@@ -328,11 +324,8 @@ internal class MainGame
     {
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.Black;
-        int questionLength = (consoleWidth - question.Length - 2);
-        Console.Write(" " + "QUESTION:" + padding.Append(' ', consoleWidth - 10));
-        padding.Clear();
-        Console.Write(" " + question.ToUpper() + padding.Append(' ', questionLength));
-        padding.Clear();
+        Console.Write(" QUESTION:".PadRight(consoleWidth));
+        Console.Write(" " + question.ToUpper().PadRight(consoleWidth-2));
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
     }
@@ -341,12 +334,9 @@ internal class MainGame
     {
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.Black;
-        Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
-        padding.Clear();
-        secondPadding.Clear();
-        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
-        padding.Clear();
-        secondPadding.Clear();
+        Console.Write(" ANSWER:".PadRight(consoleWidth));
+        Console.Write(" {0}", answer.PadRight(consoleWidth));
+
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
     }
@@ -354,7 +344,6 @@ internal class MainGame
     private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
-        int questionLength = (consoleWidth - question.Length - 2);
 
         Console.SetCursorPosition(0, 0);
 
@@ -375,19 +364,15 @@ internal class MainGame
 
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.Write(padding.Append(' ', consoleWidth));
-        padding.Clear();
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
+        Console.Write("".PadRight(consoleWidth));
+        Console.WriteLine("".PadRight(consoleWidth));
 
         RedrawAnswerBar(answer);
 
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.Write(padding.Append(' ', consoleWidth));
-        padding.Clear();
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
+        Console.Write("".PadRight(consoleWidth));
+        Console.Write("".PadRight(consoleWidth));
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
 
@@ -399,21 +384,10 @@ internal class MainGame
         }
 
         // Print bottom boundary.
-        for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
-        {
-            Console.SetCursorPosition(k, i);
-            Console.Write(' ');
-        }
-        for (int i = consoleHeight - 2, k = 0; k < consoleWidth; k++)
-        {
-            Console.SetCursorPosition(k, i);
-            Console.Write(' ');
-        }
-        for (int i = consoleHeight - 3, k = 0; k < consoleWidth; k++)
-        {
-            Console.SetCursorPosition(k, i);
-            Console.Write(' ');
-        }
+        Console.SetCursorPosition(0, consoleHeight - 3);
+        Console.Write("".PadRight(consoleWidth));
+        Console.WriteLine("".PadRight(consoleWidth-1));
+        Console.Write("".PadRight(consoleWidth));
         // Print right boundary.
         for (int i = consoleHeight - 1, k = consoleWidth - 1; i >= 0; i--)
         {
