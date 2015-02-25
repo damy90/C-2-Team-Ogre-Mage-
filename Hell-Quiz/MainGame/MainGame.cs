@@ -16,15 +16,15 @@ internal class MainGame
     private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
     // Load all answers from file.
 
-    private static readonly int consoleWidth = 107;//Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
-    private static readonly int consoleHeight = 50;//Console.LargestWindowHeight - 20;
+    private static readonly int consoleWidth = 107; //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+    private static readonly int consoleHeight = 50; //Console.LargestWindowHeight - 20;
 
     private static int score = 0;
     static int livesCount = 3;
     static int gameFieldTop = 12;
     static int gameFiledBottom = 6;
     static string container;
-    static string gameover = "GAME OVER!";
+    static string gameOverMessage = "GAME OVER!";
     static int index = 0;
     static char[] addLetter;
     static int nextQuestion = random.Next(questions.Count);
@@ -39,11 +39,15 @@ internal class MainGame
 
         Console.CursorVisible = false;
 
-        string question = GetQuestion(nextQuestion);
+        StartGame(DrawNewQuestion(), container, consoleWidth, consoleHeight);
+    }
 
+    static string DrawNewQuestion()
+    {
+        string question = GetQuestion(nextQuestion);
         container = new string('*', correctAnswer.Length);
-        // PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
-        StartGame(question, container, consoleWidth, consoleHeight);
+        //PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
+        return question;
     }
 
     static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
@@ -61,17 +65,16 @@ internal class MainGame
         PrintOnPosition(player.x, player.y, player.str, player.color);
 
         var watch = Stopwatch.StartNew();
-        var watchBombs = Stopwatch.StartNew(); // Define dropping bombs in given time i.e how frequent will drop new bomb
+        var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will drop new bomb
         var watchLetters = Stopwatch.StartNew(); // Same for letters
-        var watchDels = Stopwatch.StartNew(); // Same for deletes
+        var watchDels = Stopwatch.StartNew();    // Same for deletes
 
         var bombs = new List<Object>();
         var letters = new List<Object>();
         var dels = new List<Object>();
+
         while (true)
         {
-
-
             #region Pressed Key, Moving Playes
             while (Console.KeyAvailable)
             {
@@ -99,7 +102,10 @@ internal class MainGame
                 PrintOnPosition(player.x, player.y, player.str, player.color);
             }
             #endregion
-            #region Adding objects to list // TODO: Balance frequence of objects
+
+            #region Adding falling objects to list
+
+            #region Add bombs to list
             // Add bombs to list  
             if (watchBombs.ElapsedMilliseconds >= 400) // Define how frequent bombs are droping
             {
@@ -113,6 +119,9 @@ internal class MainGame
                 bombs.Add(bomb);
                 watchBombs.Restart();
             }
+            #endregion
+
+            #region Add letters to list
             // Add letters to list
             if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
             {
@@ -120,30 +129,35 @@ internal class MainGame
 
                 letter.x = randomGenerator.Next(2, consoleWidth - 2);
                 letter.y = gameFieldTop;
-                // letter.c = (char) randomGenerator(65, 91) <-- Drop lettes A-Z
-                // The code below drop only letters from the answer
+
                 letter.c = (char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)];
                 letter.color = ConsoleColor.White;
                 letters.Add(letter);
                 watchLetters.Restart();
             }
+            #endregion
+
+            #region Add deletes to list
             // Add dels to list
-            if (watchDels.ElapsedMilliseconds >= 500) // Define how frequent deletes are droping
+            if (watchDels.ElapsedMilliseconds >= 5000) // Define how frequent deletes are droping
             {
                 var del = new Object();
 
                 del.x = randomGenerator.Next(2, consoleWidth - 2);
                 del.y = gameFieldTop;
-                del.c = '<'; // To change
+                del.c = '<';                           // To change 
                 del.color = ConsoleColor.DarkGreen;
 
                 dels.Add(del);
                 watchDels.Restart();
             }
             #endregion
+
+            #endregion
+
             if (watch.ElapsedMilliseconds >= 200)
             {
-                //Movе Falling Bombs 
+                #region Move Falling Bombs
                 for (int b = 0; b < bombs.Count; b++)
                 {
                     Object newBomb = bombs[b];
@@ -151,20 +165,25 @@ internal class MainGame
                     if (newBomb.y < consoleHeight - 4)
                     {
                         PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
-                        newBomb.y = newBomb.y + 1M;
+                        newBomb.y = newBomb.y + 1;
 
                         if (newBomb.y == consoleHeight - 4)
                         {
                             if (newBomb.x == player.x || newBomb.x == player.x + 1 || newBomb.x == player.x + 2)
                             {
                                 PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
-                                livesCount--;
-                                // TODO: If livesCount == 0 
-                                PrintOnPosition(newBomb.x, newBomb.y, "=", player.color);
-                                Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
-                                Console.WriteLine("BOMB");
-                                // Remove "BOMB" from the screen with next re-drawing
-                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop);
+                                if (livesCount > 1)
+                                {
+                                    livesCount--;
+                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.color);       // Remove "BOMB" from the screen with next re-drawing
+                                    ModifyInfoBar(question, container, consoleWidth, gameFieldTop); // Put here method for drawing only the lives count bar.
+                                }
+                                else if (livesCount == 1)
+                                {
+                                    livesCount--;
+                                    GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
+                                    return;
+                                }
                             }
                         }
                         else
@@ -174,31 +193,25 @@ internal class MainGame
                         bombs[b] = newBomb;
                     }
                 }
+                #endregion
 
-
-                //Movе Falling Letters 
+                #region Move Falling Letters
                 for (int l = 0; l < letters.Count; l++)
                 {
                     var letter = letters[l];
                     if (letter.y < consoleHeight - 4)
                     {
                         PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                        letter.y = letter.y + 1M;
+                        letter.y = letter.y + 1;
 
                         if (letter.y == consoleHeight - 4)
                         {
                             if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
                             {
                                 PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                                addLetter = container.ToCharArray();
-                                addLetter[index] = letter.c;
-                                index++;
+                                UpdateAnswerWhenLetterCaught(letter);
                                 PrintOnPosition(letter.x, letter.y, "=", player.color);
-                                Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
-                                Console.WriteLine("LETTER");
-                                // TODO: Remove "LETTER" with next re-drawing
-                                container = string.Join("", addLetter);
-                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop);
+                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop); // Put here method for redrawing only the answer bar
                             }
                         }
                         else
@@ -208,7 +221,9 @@ internal class MainGame
                         letters[l] = letter;
                     }
                 }
+                #endregion
 
+                #region Move Falling Del
                 //Movе Falling DEL 
                 for (int d = 0; d < dels.Count; d++)
                 {
@@ -216,22 +231,19 @@ internal class MainGame
                     if (del.y < consoleHeight - 4)
                     {
                         PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                        del.y = del.y + 1M;
+                        del.y = del.y + 1;
 
                         if (del.y == consoleHeight - 4)
                         {
                             if (del.x == player.x || del.x == player.x + 1 || del.x == player.x + 2)
                             {
+                                if (index != 0)
+                                {
+                                    UpdateAnswerWhenDeleteCaught(del);
+                                }
                                 PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                                addLetter = container.ToCharArray();
-                                addLetter[index] = '*';
-                                index--;
                                 PrintOnPosition(del.x, del.y, "=", player.color);
-                                Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2);
-                                Console.WriteLine("DEL");
-                                // TODO: Remove "DEL" from the screen after.. some time
-                                container = string.Join("", addLetter);
-                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop);
+                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop);  // Put here redrawing only answer bar
                             }
                         }
                         else
@@ -240,27 +252,51 @@ internal class MainGame
                         }
                     }
                     dels[d] = del;
-                }//end falling dels
+                }
+                #endregion
 
                 watch.Restart();
             }
             if (container[container.Length - 1] != '*')
             {
-                if (container == answer)
+                if (container.Equals(answer))
                 {
-                    //TODO: win
+                    score += (answer.Length * 20);
                 }
                 else
                 {
-                    //loose
-                    string gameOverInfo = "The correct answer is: ";
-                    PrintOnPosition(consoleWidth / 2 - gameover.Length, (consoleHeight - gameFieldTop) / 2, gameover, ConsoleColor.DarkRed);
-                    PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length, (consoleHeight - gameFieldTop) / 2 + 1, gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
-                    Console.WriteLine();
+                    // Lose game.
+                    GameOverScreen(consoleWidth, consoleHeight);
+                    return;
                 }
-                return;
             }
-        }//end while true
+        }   //end while true
+    }
+
+    private static void GameOverScreen(int consoleWidth, int consoleHeight)
+    {
+        Console.Clear();
+        string gameOverInfo = "The correct answer is: ";
+        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length + 4, (consoleHeight / 2), gameOverMessage, ConsoleColor.DarkRed);
+        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length +6, (consoleHeight / 2) + 1, gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        Console.ReadLine();
+        Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
+    }
+
+    private static void UpdateAnswerWhenLetterCaught(Object letter)
+    {
+        addLetter = container.ToCharArray();
+        addLetter[index] = letter.c;
+        index++;
+        container = string.Join("", addLetter);
+    }
+
+    private static void UpdateAnswerWhenDeleteCaught(Object del)
+    {
+        addLetter = container.ToCharArray();
+        index--;
+        addLetter[index] = '*';
+        container = string.Join("", addLetter);
     }
 
     private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
@@ -329,7 +365,6 @@ internal class MainGame
             Console.Write(' ');
         }
 
-
         // Print bottom boundary.
         for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
         {
@@ -362,12 +397,13 @@ internal class MainGame
         Console.ResetColor();
     }
 
-    private static void PrintOnPosition(int x, decimal y, string str, ConsoleColor color)
+    private static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
     {
         Console.SetCursorPosition(x, (int)y);
         Console.ForegroundColor = color;
         Console.Write(str);
     }
+
     private static void PrintOnPosition(int x, int y, char c, ConsoleColor color)
     {
         Console.SetCursorPosition(x, y);
@@ -403,13 +439,14 @@ internal class MainGame
         Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
     }
+
     private struct Object // Movement coordinates.
     {
         public ConsoleColor color;
         public string str;
         public char c;
         public int x;
-        public decimal y;
+        public int y;
 
     }
 }
