@@ -257,16 +257,20 @@ internal class MainGame
 
                 watch.Restart();
             }
+
             if (container[container.Length - 1] != '*')
             {
-                if (container.Equals(answer))
+                container = container.ToUpper();
+                if (correctAnswer.Equals(container))
                 {
                     score += (answer.Length * 20);
+                    // TODO: Overwrite 
                 }
                 else
                 {
                     // Lose game.
                     GameOverScreen(consoleWidth, consoleHeight);
+                    Console.ReadLine();
                     return;
                 }
             }
