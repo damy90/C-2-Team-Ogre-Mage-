@@ -22,13 +22,17 @@ internal class MainGame
     private static int score = 0;
     static int livesCount = 3;
     static int gameFieldTop = 12;
-    static int gameFiledBottom = 6;
+    
     static string container;
     static string gameOverMessage = "GAME OVER!";
     static int index = 0;
     static char[] addLetter;
     static int nextQuestion = random.Next(questions.Count);
     static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
+
+    static StringBuilder padding = new StringBuilder();
+    static StringBuilder secondPadding = new StringBuilder();
+    static StringBuilder thirdPadding = new StringBuilder();
 
     private static int oldPosition;
 
@@ -176,7 +180,8 @@ internal class MainGame
                                 {
                                     livesCount--;
                                     PrintOnPosition(newBomb.x, newBomb.y, "=", player.color);       // Remove "BOMB" from the screen with next re-drawing
-                                    ModifyInfoBar(question, container, consoleWidth, gameFieldTop); // Put here method for drawing only the lives count bar.
+                                    Console.SetCursorPosition(0, 1);
+                                    RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
                                 }
                                 else if (livesCount == 1)
                                 {
@@ -209,9 +214,10 @@ internal class MainGame
                             if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
                             {
                                 PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                                UpdateAnswerWhenLetterCaught(letter);
                                 PrintOnPosition(letter.x, letter.y, "=", player.color);
-                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop); // Put here method for redrawing only the answer bar
+                                UpdateAnswerWhenLetterCaught(letter);
+                                Console.SetCursorPosition(0, 8);
+                                RedrawAnswerBar(container);        
                             }
                         }
                         else
@@ -224,7 +230,7 @@ internal class MainGame
                 #endregion
 
                 #region Move Falling Del
-                //Movе Falling DEL 
+                // Movе Falling DEL 
                 for (int d = 0; d < dels.Count; d++)
                 {
                     var del = dels[d];
@@ -243,7 +249,8 @@ internal class MainGame
                                 }
                                 PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
                                 PrintOnPosition(del.x, del.y, "=", player.color);
-                                ModifyInfoBar(question, container, consoleWidth, gameFieldTop);  // Put here redrawing only answer bar
+                                Console.SetCursorPosition(0, 8);
+                                RedrawAnswerBar(container);     // Put here redrawing only answer bar
                             }
                         }
                         else
@@ -303,64 +310,86 @@ internal class MainGame
         container = string.Join("", addLetter);
     }
 
+    private static void RedrawLivesBar(char heart)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.Write(" LIVES: "
+                    + (new string(heart, livesCount))
+                    + (new string(' ', consoleWidth - 21 - Convert.ToString(score).Length - (-3 + livesCount)))
+                    + "SCORE: " + score
+                    + (new string(' ', 3))
+          );
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+
+    private static void RedrawQuestionBar(string question)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Black;
+        int questionLength = (consoleWidth - question.Length - 2);
+        Console.Write(" " + "QUESTION:" + padding.Append(' ', consoleWidth - 10));
+        padding.Clear();
+        Console.Write(" " + question.ToUpper() + padding.Append(' ', questionLength));
+        padding.Clear();
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+
+    private static void RedrawAnswerBar(string answer)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
+        padding.Clear();
+        secondPadding.Clear();
+        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
+        padding.Clear();
+        secondPadding.Clear();
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+
     private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
         int questionLength = (consoleWidth - question.Length - 2);
 
-        var padding = new StringBuilder();
-        var secondPadding = new StringBuilder();
-        var thirdPadding = new StringBuilder();
-
         Console.SetCursorPosition(0, 0);
-        Console.BackgroundColor = ConsoleColor.DarkGray;
-        Console.ForegroundColor = ConsoleColor.DarkRed;
 
         #region Draw Infobar
-
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(new string(' ', consoleWidth));
 
-        Console.Write(" LIVES: "
-                      + (new string(heart, livesCount))
-                      + (new string(' ', consoleWidth - 21 - Convert.ToString(score).Length - (-3 + livesCount)))
-                      + "SCORE: " + score
-                      + (new string(' ', 3))
-            );
+        RedrawLivesBar(heart);
 
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(new string(' ', consoleWidth));
         Console.Write(new string(' ', consoleWidth));
 
-        // Set questions & answers color.
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.Write(" " + "QUESTION:" + padding.Append(' ', consoleWidth - 10));
-        padding.Clear();
+        // Draw question and answer bars.
+        RedrawQuestionBar(question);
 
-        Console.Write(" " + question.ToUpper() + padding.Append(' ', questionLength));
-        padding.Clear();
-
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(padding.Append(' ', consoleWidth));
         padding.Clear();
-
         Console.WriteLine(padding.Append(' ', consoleWidth));
         padding.Clear();
 
-        Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
-        padding.Clear();
+        RedrawAnswerBar(answer);
 
-        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.Write(padding.Append(' ', consoleWidth));
         padding.Clear();
-
         Console.WriteLine(padding.Append(' ', consoleWidth));
         padding.Clear();
-
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
-        // Check if we call the method for re-drawing after collision and if so re-draw only the infoBar
-        if (consoleHeight == gameFieldTop)
-        {
-            Console.ResetColor();
-            return;
-        }
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
 
         // Print left boundary.
         for (int i = 10, k = 0; i < consoleHeight - 1; i++)
