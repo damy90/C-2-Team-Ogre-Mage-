@@ -306,61 +306,37 @@ internal class MainGame
     private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
     {
         char heart = '♥';
-        int questionLength = (consoleWidth - question.Length - 2);
+        //int questionLength = (consoleWidth - question.Length - 2);
 
-        var padding = new StringBuilder();
-        var secondPadding = new StringBuilder();
-        var thirdPadding = new StringBuilder();
+        //var padding = new StringBuilder();
+        //var secondPadding = new StringBuilder();
+        //var thirdPadding = new StringBuilder();
 
         Console.SetCursorPosition(0, 0);
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
 
         #region Draw Infobar
-
-        Console.Write(new string(' ', consoleWidth));
-
-        Console.Write(" LIVES: "
-                      + (new string(heart, livesCount))
-                      + (new string(' ', consoleWidth - 21 - Convert.ToString(score).Length - (-3 + livesCount)))
-                      + "SCORE: " + score
-                      + (new string(' ', 3))
-            );
-
-        Console.Write(new string(' ', consoleWidth));
-        Console.Write(new string(' ', consoleWidth));
-
-        // Set questions & answers color.
-        Console.ForegroundColor = ConsoleColor.Black;
-        Console.Write(" " + "QUESTION:" + padding.Append(' ', consoleWidth - 10));
-        padding.Clear();
-
-        Console.Write(" " + question.ToUpper() + padding.Append(' ', questionLength));
-        padding.Clear();
-
-        Console.Write(padding.Append(' ', consoleWidth));
-        padding.Clear();
-
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
-
-        Console.Write(" " + "ANSWER:" + padding.Append(' ', consoleWidth - 8));
-        padding.Clear();
-
-        Console.Write(" " + answer + secondPadding.Append(' ', consoleWidth - 2 - answer.Length));
-        padding.Clear();
-
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
-
-        Console.WriteLine(padding.Append(' ', consoleWidth));
-        padding.Clear();
-        // Check if we call the method for re-drawing after collision and if so re-draw only the infoBar
-        if (consoleHeight == gameFieldTop)
+        for (int i = 0; i < 12; i++)
         {
-            Console.ResetColor();
-            return;
+            Console.WriteLine(new string(' ', consoleWidth - 1));
         }
+
+        PrintLives(heart);
+
+        PrintScore(consoleWidth);
+
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.SetCursorPosition(0, 3);
+        Console.Write(" QUESTION:");
+
+        PrintQuestion(question);
+
+        Console.SetCursorPosition(0, 6);
+        Console.Write(" ANSWER:");
+
+        PrintAnswer(answer);
+
 
         // Print left boundary.
         for (int i = 10, k = 0; i < consoleHeight - 1; i++)
@@ -368,6 +344,7 @@ internal class MainGame
             Console.SetCursorPosition(k, i);
             Console.Write(' ');
         }
+
 
         // Print bottom boundary.
         for (int i = consoleHeight - 1, k = 0; k < consoleWidth; k++)
@@ -399,6 +376,38 @@ internal class MainGame
         #endregion
 
         Console.ResetColor();
+    }
+
+    private static void PrintAnswer(string answer)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.SetCursorPosition(0, 7);
+        Console.Write(" " + answer);
+    }
+
+    private static void PrintQuestion(string question)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.SetCursorPosition(0, 4);
+        Console.Write(" " + question.ToUpper());
+    }
+
+    private static void PrintScore(int consoleWidth)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.SetCursorPosition(consoleWidth - 12, 1);
+        Console.Write(" SCORE: {0}", score);
+    }
+
+    private static void PrintLives(char heart)
+    {
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.SetCursorPosition(0, 1);
+        Console.Write(" LIVES: {0}", (new string(heart, livesCount)));
     }
 
     private static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
