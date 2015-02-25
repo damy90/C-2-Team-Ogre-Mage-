@@ -52,7 +52,7 @@ internal class MainGame
 
     static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
     {
-        ModifyInfoBar(question, answer, consoleWidth, consoleHeight);
+        ModifyInfoBar(question, answer);
         var randomGenerator = new Random();
 
         Player player = new Player(consoleWidth / 2, consoleHeight - 4);
@@ -339,7 +339,7 @@ internal class MainGame
         Console.ForegroundColor = ConsoleColor.White;
     }
 
-    private static void ModifyInfoBar(string question, string answer, int consoleWidth, int consoleHeight)
+    private static void ModifyInfoBar(string question, string answer)
     {
         char heart = '♥';
 
