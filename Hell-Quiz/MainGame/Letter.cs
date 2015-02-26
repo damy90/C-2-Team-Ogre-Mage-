@@ -1,17 +1,17 @@
 ﻿using System;
 
-    class Letter : GameFieldObject
+class Letter : GameFieldObject
+{
+    public Letter(int xPos, int gameFieldTop, string letter)
     {
-        public Letter(int gameFieldTop, int xPos, string letter)
-        {
-            X = xPos;
-            Y = gameFieldTop;
-            Str = letter;
-            Color = ConsoleColor.White;
-        }
-
-        public void MoveDown()
-        {
-            Y--;
-        }
+        X = xPos;
+        Y = gameFieldTop;
+        Str = letter;
+        Color = ConsoleColor.White;
     }
+
+    public void FallDown()
+    {
+        Y++;
+    }
+}

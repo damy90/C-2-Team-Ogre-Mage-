@@ -76,7 +76,7 @@ internal class MainGame
         var watchDels = Stopwatch.StartNew();    // Same for deletes
 
         var bombs = new List<Object>();
-        var letters = new List<Object>();
+        var letters = new List<Letter>();
         var dels = new List<Object>();
 
         while (true)
@@ -131,13 +131,10 @@ internal class MainGame
             // Add letters to list
             if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
             {
-                var letter = new Object();
+                int randomXPosition=randomGenerator.Next(2, consoleWidth - 2);
+                string randomLetter=((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
+                var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
 
-                letter.x = randomGenerator.Next(2, consoleWidth - 2);
-                letter.y = gameFieldTop;
-
-                letter.c = (char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)];
-                letter.color = ConsoleColor.White;
                 letters.Add(letter);
                 watchLetters.Restart();
             }
@@ -206,17 +203,17 @@ internal class MainGame
                 for (int l = 0; l < letters.Count; l++)
                 {
                     var letter = letters[l];
-                    if (letter.y < consoleHeight - 4)
+                    if (letter.Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                        letter.y = letter.y + 1;
+                        PrintOnPosition(letter.X, letter.Y, " ", ConsoleColor.White);
+                        letter.FallDown();
 
-                        if (letter.y == consoleHeight - 4)
+                        if (letter.Y == consoleHeight - 4)
                         {
-                            if (letter.x == player.X || letter.x == player.X + 1 || letter.x == player.X + 2)
+                            if (letter.X == player.X || letter.X == player.X + 1 || letter.X == player.X + 2)
                             {
-                                PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                                PrintOnPosition(letter.x, letter.y, "=", player.Color);
+                                PrintOnPosition(letter.X, letter.Y, " ", ConsoleColor.White);
+                                PrintOnPosition(letter.X, letter.Y, "=", player.Color);
                                 UpdateAnswerWhenLetterCaught(letter);
                                 Console.SetCursorPosition(0, 8);
                                 RedrawAnswerBar(container);
@@ -224,7 +221,7 @@ internal class MainGame
                         }
                         else
                         {
-                            PrintOnPosition(letter.x, (int)letter.y, letter.c, letter.color);
+                            PrintOnPosition(letter.X, letter.Y, letter.Str, letter.Color);
                         }
                         letters[l] = letter;
                     }
@@ -393,10 +390,10 @@ internal class MainGame
     }
 
 
-    private static void UpdateAnswerWhenLetterCaught(Object letter)
+    private static void UpdateAnswerWhenLetterCaught(Letter letter)
     {
         addLetter = container.ToCharArray();
-        addLetter[index] = letter.c;
+        addLetter[index] = letter.Str[0];
         index++;
         container = string.Join("", addLetter);
     }
