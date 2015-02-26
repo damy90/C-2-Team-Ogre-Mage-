@@ -66,14 +66,9 @@ internal class MainGame
         ModifyInfoBar(question, answer);
         var randomGenerator = new Random();
 
-        var player = new Object();
+        var player = new Player(consoleWidth / 2, consoleHeight - 4);
 
-        player.x = consoleWidth / 2;
-        player.y = consoleHeight - 4;
-        player.str = "===";
-        player.color = ConsoleColor.Red;
-
-        PrintOnPosition(player.x, player.y, player.str, player.color);
+        PrintOnPosition(player.X, player.Y, player.Str, player.Color);
 
         var watch = Stopwatch.StartNew();
         var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will drop new bomb
@@ -91,26 +86,26 @@ internal class MainGame
             {
 
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-                oldPosition = player.x;
+                oldPosition = player.X;
 
                 if (pressedKey.Key == ConsoleKey.LeftArrow)
                 {
-                    if ((player.x - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
+                    if ((player.X - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
                     {
-                        player.x = (player.x - 1);
-                        PrintOnPosition(oldPosition + 2, player.y, " ", player.color);
+                        player.MovePlayer(-1);
+                        PrintOnPosition(oldPosition + 2, player.Y, " ", player.Color);
                     }
                 }
                 if (pressedKey.Key == ConsoleKey.RightArrow)
                 {
-                    if (player.x + 2 < (consoleWidth - 2))
+                    if (player.X + 2 < (consoleWidth - 2))
                     // < ConsoleWidth - 2, because of the boundaries of the user interface.
                     {
-                        player.x = (player.x + 1);
-                        PrintOnPosition(oldPosition, player.y, " ", player.color);
+                        player.MovePlayer(1);
+                        PrintOnPosition(oldPosition, player.Y, " ", player.Color);
                     }
                 }
-                PrintOnPosition(player.x, player.y, player.str, player.color);
+                PrintOnPosition(player.X, player.Y, player.Str, player.Color);
             }
             #endregion
 
@@ -180,13 +175,13 @@ internal class MainGame
 
                         if (newBomb.y == consoleHeight - 4)
                         {
-                            if (newBomb.x == player.x || newBomb.x == player.x + 1 || newBomb.x == player.x + 2)
+                            if (newBomb.x == player.X || newBomb.x == player.X + 1 || newBomb.x == player.X + 2)
                             {
                                 PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
                                 if (livesCount > 1)
                                 {
                                     livesCount--;
-                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.color);       // Remove "BOMB" from the screen with next re-drawing
+                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.Color);       // Remove "BOMB" from the screen with next re-drawing
                                     Console.SetCursorPosition(0, 1);
                                     RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
                                 }
@@ -218,10 +213,10 @@ internal class MainGame
 
                         if (letter.y == consoleHeight - 4)
                         {
-                            if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
+                            if (letter.x == player.X || letter.x == player.X + 1 || letter.x == player.X + 2)
                             {
                                 PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                                PrintOnPosition(letter.x, letter.y, "=", player.color);
+                                PrintOnPosition(letter.x, letter.y, "=", player.Color);
                                 UpdateAnswerWhenLetterCaught(letter);
                                 Console.SetCursorPosition(0, 8);
                                 RedrawAnswerBar(container);
@@ -248,14 +243,14 @@ internal class MainGame
 
                         if (del.y == consoleHeight - 4)
                         {
-                            if (del.x == player.x || del.x == player.x + 1 || del.x == player.x + 2)
+                            if (del.x == player.X || del.x == player.X + 1 || del.x == player.X + 2)
                             {
                                 if (index != 0)
                                 {
                                     UpdateAnswerWhenDeleteCaught(del);
                                 }
                                 PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                                PrintOnPosition(del.x, del.y, "=", player.color);
+                                PrintOnPosition(del.x, del.y, "=", player.Color);
                                 Console.SetCursorPosition(0, 8);
                                 RedrawAnswerBar(container);     // Put here redrawing only answer bar
                             }
