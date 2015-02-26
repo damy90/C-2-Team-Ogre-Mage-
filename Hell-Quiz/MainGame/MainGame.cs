@@ -75,7 +75,7 @@ internal class MainGame
         var watchLetters = Stopwatch.StartNew(); // Same for letters
         var watchDels = Stopwatch.StartNew();    // Same for deletes
 
-        var bombs = new List<Object>();
+        var bombs = new List<Bomb>();
         var letters = new List<Letter>();
         var dels = new List<Object>();
 
@@ -115,12 +115,10 @@ internal class MainGame
             // Add bombs to list  
             if (watchBombs.ElapsedMilliseconds >= 400) // Define how frequent bombs are droping
             {
-                var bomb = new Object();
-
-                bomb.x = randomGenerator.Next(2, consoleWidth - 2);
-                bomb.y = gameFieldTop;
-                bomb.str = "&";
-                bomb.color = ConsoleColor.Red;
+                int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
+                //string randomLetter=((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
+                //var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
+                var bomb = new Bomb(randomXPosition, gameFieldTop);
 
                 bombs.Add(bomb);
                 watchBombs.Restart();
@@ -131,8 +129,8 @@ internal class MainGame
             // Add letters to list
             if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
             {
-                int randomXPosition=randomGenerator.Next(2, consoleWidth - 2);
-                string randomLetter=((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
+                int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
+                string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
                 var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
 
                 letters.Add(letter);
@@ -163,22 +161,22 @@ internal class MainGame
                 #region Move Falling Bombs
                 for (int b = 0; b < bombs.Count; b++)
                 {
-                    Object newBomb = bombs[b];
+                    var newBomb = bombs[b];
 
-                    if (newBomb.y < consoleHeight - 4)
+                    if (newBomb.Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
-                        newBomb.y = newBomb.y + 1;
+                        PrintOnPosition(newBomb.X, newBomb.Y, " ", ConsoleColor.White);
+                        newBomb.FallDown();
 
-                        if (newBomb.y == consoleHeight - 4)
+                        if (newBomb.Y == consoleHeight - 4)
                         {
-                            if (newBomb.x == player.X || newBomb.x == player.X + 1 || newBomb.x == player.X + 2)
+                            if (newBomb.X == player.X || newBomb.X == player.X + 1 || newBomb.X == player.X + 2)
                             {
-                                PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
+                                PrintOnPosition(newBomb.X, newBomb.Y, " ", ConsoleColor.White);
                                 if (livesCount > 1)
                                 {
                                     livesCount--;
-                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.Color);       // Remove "BOMB" from the screen with next re-drawing
+                                    PrintOnPosition(newBomb.X, newBomb.Y, "=", player.Color);       // Remove "BOMB" from the screen with next re-drawing
                                     Console.SetCursorPosition(0, 1);
                                     RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
                                 }
@@ -192,7 +190,7 @@ internal class MainGame
                         }
                         else
                         {
-                            PrintOnPosition(newBomb.x, newBomb.y, newBomb.str, newBomb.color);
+                            PrintOnPosition(newBomb.X, newBomb.Y, newBomb.Str, newBomb.Color);
                         }
                         bombs[b] = newBomb;
                     }
@@ -506,7 +504,7 @@ internal class MainGame
 
     private static void PrintOnPosition(int x, int y, string str, ConsoleColor color)
     {
-        Console.SetCursorPosition(x, (int)y);
+        Console.SetCursorPosition(x, y);
         Console.ForegroundColor = color;
         Console.Write(str);
     }
