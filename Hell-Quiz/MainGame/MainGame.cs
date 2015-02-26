@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Services;
 using System.Text;
 using System.Threading;
 
@@ -22,7 +23,7 @@ internal class MainGame
     private static int score = 0;
     static int livesCount = 3;
     static int gameFieldTop = 12;
-    
+
     static string container;
     static string gameOverMessage = "GAME OVER!";
     static int index = 0;
@@ -30,14 +31,24 @@ internal class MainGame
     static int nextQuestion = random.Next(questions.Count);
     static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
 
+    static StringBuilder padding = new StringBuilder();
+    static StringBuilder secondPadding = new StringBuilder();
+    static StringBuilder thirdPadding = new StringBuilder();
     private static int oldPosition;
+
+    static int indexCurrentPlayer;
+    //static string inputUsername;
+    static string pathHistory = @"questions\username.txt";
+    private static List<string> username;
 
     static void Main(string[] args)
     {
+        CreateFile();
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
 
         Console.CursorVisible = false;
+        StartScreen();
 
         StartGame(DrawNewQuestion(), container, consoleWidth, consoleHeight);
     }
@@ -55,10 +66,14 @@ internal class MainGame
         ModifyInfoBar(question, answer);
         var randomGenerator = new Random();
 
-        Player player = new Player(consoleWidth / 2, consoleHeight - 4);
+        var player = new Object();
 
+        player.x = consoleWidth / 2;
+        player.y = consoleHeight - 4;
+        player.str = "===";
+        player.color = ConsoleColor.Red;
 
-        PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+        PrintOnPosition(player.x, player.y, player.str, player.color);
 
         var watch = Stopwatch.StartNew();
         var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will drop new bomb
@@ -76,27 +91,26 @@ internal class MainGame
             {
 
                 ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-                oldPosition = player.X;
+                oldPosition = player.x;
 
                 if (pressedKey.Key == ConsoleKey.LeftArrow)
                 {
-                    if ((player.X - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
+                    if ((player.x - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
                     {
-                        //this shouldn't work
-                        player.MovePlayer(-1);
-                        PrintOnPosition(oldPosition + 2, player.Y, " ", player.Color);
+                        player.x = (player.x - 1);
+                        PrintOnPosition(oldPosition + 2, player.y, " ", player.color);
                     }
                 }
                 if (pressedKey.Key == ConsoleKey.RightArrow)
                 {
-                    if (player.X + 2 < (consoleWidth - 2))
+                    if (player.x + 2 < (consoleWidth - 2))
                     // < ConsoleWidth - 2, because of the boundaries of the user interface.
                     {
-                        player.MovePlayer(1);
-                        PrintOnPosition(oldPosition, player.Y, " ", player.Color);
+                        player.x = (player.x + 1);
+                        PrintOnPosition(oldPosition, player.y, " ", player.color);
                     }
                 }
-                PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+                PrintOnPosition(player.x, player.y, player.str, player.color);
             }
             #endregion
 
@@ -166,14 +180,13 @@ internal class MainGame
 
                         if (newBomb.y == consoleHeight - 4)
                         {
-                            //TODO loop for varying player size
-                            if (newBomb.x == player.X || newBomb.x == player.X + 1 || newBomb.x == player.X + 2)
+                            if (newBomb.x == player.x || newBomb.x == player.x + 1 || newBomb.x == player.x + 2)
                             {
                                 PrintOnPosition(newBomb.x, newBomb.y, " ", ConsoleColor.White);
                                 if (livesCount > 1)
                                 {
                                     livesCount--;
-                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.Color);       // Remove "BOMB" from the screen with next re-drawing
+                                    PrintOnPosition(newBomb.x, newBomb.y, "=", player.color);       // Remove "BOMB" from the screen with next re-drawing
                                     Console.SetCursorPosition(0, 1);
                                     RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
                                 }
@@ -205,13 +218,13 @@ internal class MainGame
 
                         if (letter.y == consoleHeight - 4)
                         {
-                            if (letter.x == player.X || letter.x == player.X + 1 || letter.x == player.X + 2)
+                            if (letter.x == player.x || letter.x == player.x + 1 || letter.x == player.x + 2)
                             {
                                 PrintOnPosition(letter.x, letter.y, " ", ConsoleColor.White);
-                                PrintOnPosition(letter.x, letter.y, "=", player.Color);
+                                PrintOnPosition(letter.x, letter.y, "=", player.color);
                                 UpdateAnswerWhenLetterCaught(letter);
                                 Console.SetCursorPosition(0, 8);
-                                RedrawAnswerBar(container);        
+                                RedrawAnswerBar(container);
                             }
                         }
                         else
@@ -235,14 +248,14 @@ internal class MainGame
 
                         if (del.y == consoleHeight - 4)
                         {
-                            if (del.x == player.X || del.x == player.X + 1 || del.x == player.X + 2)
+                            if (del.x == player.x || del.x == player.x + 1 || del.x == player.x + 2)
                             {
                                 if (index != 0)
                                 {
                                     UpdateAnswerWhenDeleteCaught(del);
                                 }
                                 PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                                PrintOnPosition(del.x, del.y, "=", player.Color);
+                                PrintOnPosition(del.x, del.y, "=", player.color);
                                 Console.SetCursorPosition(0, 8);
                                 RedrawAnswerBar(container);     // Put here redrawing only answer bar
                             }
@@ -282,11 +295,108 @@ internal class MainGame
     {
         Console.Clear();
         string gameOverInfo = "The correct answer is: ";
-        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length + 4, (consoleHeight / 2 -1), gameOverMessage, ConsoleColor.DarkRed);
+        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length + 4, (consoleHeight / 2 - 1), gameOverMessage, ConsoleColor.DarkRed);
         PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length + 6, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
-        Console.ReadLine();
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
+
+
+        //writing to the scoreFile
+        if (string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
+        {
+            username.RemoveAt(indexCurrentPlayer + 1);
+            username.Add(score.ToString());
+            File.WriteAllLines(pathHistory, username);
+        }
+        else if (
+            !(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) &&   // check if the new score is bigger
+            score > int.Parse(username[indexCurrentPlayer + 1]))
+        {
+            username.RemoveAt(indexCurrentPlayer + 1);
+            username.Insert(indexCurrentPlayer + 1, score.ToString());
+            File.WriteAllLines(pathHistory, username);
+        }
+
+
+        Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
+
     }
+
+    private static void CreateFile()
+    {
+        try
+        {
+            if (File.Exists(pathHistory))
+            {
+                username = (File.ReadAllLines(@"questions\username.txt")).ToList();
+                return;
+            }
+            using (FileStream fs = File.Create(pathHistory))
+            {
+                Byte[] info = new UTF8Encoding(true).GetBytes("");
+                fs.Write(info, 0, info.Length);
+            }
+            username = (File.ReadAllLines(@"questions\username.txt")).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    private static void StartScreen()
+    {
+        //Console.BackgroundColor = ConsoleColor.DarkGray;
+
+
+        string gameDescription = "Game Description:";
+        string enterPlayerName = "Enter username:";
+        string howToPlay = "Answer the question.";
+        string howToPlay2 = "Collect falling letters in order, to form the answer.";
+        string howToPlay3 = "Catch a “backspace” symbol to delete the last letter.";
+        string howToPlay4 = "Beware the bombs. Enjoy the game!";
+
+        //Adding Username
+        Console.SetCursorPosition(consoleWidth / 2 - enterPlayerName.Length / 2, consoleHeight / 2 - 10);
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine(enterPlayerName);
+        Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
+
+        inputUsername(Console.ReadLine());
+
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, consoleHeight / 2 - 6);
+        Console.WriteLine(gameDescription);
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay.Length / 2, consoleHeight / 2 - 4);
+        Console.WriteLine(howToPlay);
+
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay2.Length / 2, consoleHeight / 2 - 2);
+        Console.WriteLine(howToPlay2);
+
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay3.Length / 2, consoleHeight / 2);
+        Console.WriteLine(howToPlay3);
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay4.Length / 2, consoleHeight / +2);
+        Console.WriteLine(howToPlay4);
+
+        Console.ReadKey();
+        Console.Clear();
+    }
+
+    private static void inputUsername(string inputUsername)
+    {
+        if (username.Contains(inputUsername))
+        {
+            indexCurrentPlayer = username.IndexOf(inputUsername);
+
+        }
+        else
+        {
+            username.Add(inputUsername);
+            username.Add("");
+            indexCurrentPlayer = username.IndexOf(inputUsername);
+            File.AppendAllText(pathHistory, inputUsername + Environment.NewLine);
+        }
+    }
+
 
     private static void UpdateAnswerWhenLetterCaught(Object letter)
     {
@@ -323,7 +433,7 @@ internal class MainGame
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.Black;
         Console.Write(" QUESTION:".PadRight(consoleWidth));
-        Console.Write(" " + question.ToUpper().PadRight(consoleWidth-2));
+        Console.Write(" " + question.ToUpper().PadRight(consoleWidth - 2));
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
     }
@@ -384,7 +494,7 @@ internal class MainGame
         // Print bottom boundary.
         Console.SetCursorPosition(0, consoleHeight - 3);
         Console.Write("".PadRight(consoleWidth));
-        Console.WriteLine("".PadRight(consoleWidth-1));
+        Console.WriteLine("".PadRight(consoleWidth - 1));
         Console.Write("".PadRight(consoleWidth));
         // Print right boundary.
         for (int i = consoleHeight - 1, k = consoleWidth - 1; i >= 0; i--)
@@ -452,6 +562,5 @@ internal class MainGame
         public char c;
         public int x;
         public int y;
-
     }
 }
