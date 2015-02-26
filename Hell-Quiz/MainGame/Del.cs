@@ -3,8 +3,8 @@
 
     class Del:Letter
     {
-        public Del(int gameFieldTop, int xPos)
-            : base(gameFieldTop, xPos, "&")//call constructor for letter
+        public Del(int xPos, int gameFieldTop)
+            : base(xPos, gameFieldTop, "<")//call constructor for letter
         {
             //TODO don't set color twice
             Color = ConsoleColor.DarkGreen;

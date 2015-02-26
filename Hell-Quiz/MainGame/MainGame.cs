@@ -75,9 +75,10 @@ internal class MainGame
         var watchLetters = Stopwatch.StartNew(); // Same for letters
         var watchDels = Stopwatch.StartNew();    // Same for deletes
 
+        //TODO use only 1 List<GamefieldObjects>() and let the collision detection figure out which is which
         var bombs = new List<Bomb>();
         var letters = new List<Letter>();
-        var dels = new List<Object>();
+        var dels = new List<Del>();
 
         while (true)
         {
@@ -116,8 +117,6 @@ internal class MainGame
             if (watchBombs.ElapsedMilliseconds >= 400) // Define how frequent bombs are droping
             {
                 int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
-                //string randomLetter=((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
-                //var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
                 var bomb = new Bomb(randomXPosition, gameFieldTop);
 
                 bombs.Add(bomb);
@@ -142,12 +141,7 @@ internal class MainGame
             // Add dels to list
             if (watchDels.ElapsedMilliseconds >= 5000) // Define how frequent deletes are droping
             {
-                var del = new Object();
-
-                del.x = randomGenerator.Next(2, consoleWidth - 2);
-                del.y = gameFieldTop;
-                del.c = '<';                           // To change 
-                del.color = ConsoleColor.DarkGreen;
+                var del = new Del(randomGenerator.Next(2, consoleWidth - 2), gameFieldTop);
 
                 dels.Add(del);
                 watchDels.Restart();
@@ -231,28 +225,28 @@ internal class MainGame
                 for (int d = 0; d < dels.Count; d++)
                 {
                     var del = dels[d];
-                    if (del.y < consoleHeight - 4)
+                    if (del.Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                        del.y = del.y + 1;
+                        PrintOnPosition(del.X, del.Y, " ", ConsoleColor.White);
+                        del.FallDown();
 
-                        if (del.y == consoleHeight - 4)
+                        if (del.Y == consoleHeight - 4)
                         {
-                            if (del.x == player.X || del.x == player.X + 1 || del.x == player.X + 2)
+                            if (del.X == player.X || del.X == player.X + 1 || del.X == player.X + 2)
                             {
                                 if (index != 0)
                                 {
-                                    UpdateAnswerWhenDeleteCaught(del);
+                                    UpdateAnswerWhenDeleteCaught();
                                 }
-                                PrintOnPosition(del.x, del.y, " ", ConsoleColor.White);
-                                PrintOnPosition(del.x, del.y, "=", player.Color);
+                                PrintOnPosition(del.X, del.Y, " ", ConsoleColor.White);
+                                PrintOnPosition(del.X, del.Y, "=", player.Color);
                                 Console.SetCursorPosition(0, 8);
                                 RedrawAnswerBar(container);     // Put here redrawing only answer bar
                             }
                         }
                         else
                         {
-                            PrintOnPosition(del.x, (int)del.y, del.c, del.color);
+                            PrintOnPosition(del.X, del.Y, del.Str, del.Color);
                         }
                     }
                     dels[d] = del;
@@ -396,7 +390,7 @@ internal class MainGame
         container = string.Join("", addLetter);
     }
 
-    private static void UpdateAnswerWhenDeleteCaught(Object del)
+    private static void UpdateAnswerWhenDeleteCaught()
     {
         addLetter = container.ToCharArray();
         index--;
