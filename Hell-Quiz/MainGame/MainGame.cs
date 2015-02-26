@@ -285,9 +285,13 @@ internal class MainGame
 
 
         //writing to the scoreFile
-        if (string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
+        if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
         {
-            username.RemoveAt(indexCurrentPlayer + 1);
+            if (username.Count() != 1)
+            {
+                username.RemoveAt(indexCurrentPlayer + 1);
+            }
+                
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
@@ -537,14 +541,5 @@ internal class MainGame
         }
         Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
-    }
-
-    private struct Object // Movement coordinates.
-    {
-        public ConsoleColor color;
-        public string str;
-        public char c;
-        public int x;
-        public int y;
     }
 }
