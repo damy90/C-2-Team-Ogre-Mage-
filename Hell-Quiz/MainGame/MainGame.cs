@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Services;
 using System.Text;
 using System.Threading;
 
@@ -31,9 +30,6 @@ internal class MainGame
     static int nextQuestion = random.Next(questions.Count);
     static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
 
-    static StringBuilder padding = new StringBuilder();
-    static StringBuilder secondPadding = new StringBuilder();
-    static StringBuilder thirdPadding = new StringBuilder();
     private static int oldPosition;
 
     static int indexCurrentPlayer;
@@ -76,9 +72,8 @@ internal class MainGame
         var watchDels = Stopwatch.StartNew();    // Same for deletes
 
         //TODO use only 1 List<GamefieldObjects>() and let the collision detection figure out which is which
-        var bombs = new List<Bomb>();
-        var letters = new List<Letter>();
-        var dels = new List<Del>();
+        //this is somewhat stupid
+        var fallingObjects = new List<Letter>();
 
         while (true)
         {
@@ -119,7 +114,7 @@ internal class MainGame
                 int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
                 var bomb = new Bomb(randomXPosition, gameFieldTop);
 
-                bombs.Add(bomb);
+                fallingObjects.Add(bomb);
                 watchBombs.Restart();
             }
             #endregion
@@ -132,7 +127,7 @@ internal class MainGame
                 string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
                 var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
 
-                letters.Add(letter);
+                fallingObjects.Add(letter);
                 watchLetters.Restart();
             }
             #endregion
@@ -143,7 +138,7 @@ internal class MainGame
             {
                 var del = new Del(randomGenerator.Next(2, consoleWidth - 2), gameFieldTop);
 
-                dels.Add(del);
+                fallingObjects.Add(del);
                 watchDels.Restart();
             }
             #endregion
@@ -152,107 +147,64 @@ internal class MainGame
 
             if (watch.ElapsedMilliseconds >= 200)
             {
-                #region Move Falling Bombs
-                for (int b = 0; b < bombs.Count; b++)
+                //move everything
+                for (int i = 0; i < fallingObjects.Count; i++)
                 {
-                    var newBomb = bombs[b];
+                    var newFallingObject = fallingObjects[i];
 
-                    if (newBomb.Y < consoleHeight - 4)
+                    if (newFallingObject.Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(newBomb.X, newBomb.Y, " ", ConsoleColor.White);
-                        newBomb.FallDown();
-
-                        if (newBomb.Y == consoleHeight - 4)
+                        PrintOnPosition(newFallingObject.X, newFallingObject.Y, " ", ConsoleColor.White);
+                        newFallingObject.FallDown();
+                        if (newFallingObject.Y == consoleHeight - 4)
                         {
-                            if (newBomb.X == player.X || newBomb.X == player.X + 1 || newBomb.X == player.X + 2)
+                            if (newFallingObject.X == player.X || newFallingObject.X == player.X + 1 || newFallingObject.X == player.X + 2)
                             {
-                                PrintOnPosition(newBomb.X, newBomb.Y, " ", ConsoleColor.White);
-                                if (livesCount > 1)
+                                PrintOnPosition(newFallingObject.X, newFallingObject.Y, " ", ConsoleColor.White);
+
+                                if (newFallingObject is Bomb)
                                 {
-                                    livesCount--;
-                                    PrintOnPosition(newBomb.X, newBomb.Y, "=", player.Color);       // Remove "BOMB" from the screen with next re-drawing
-                                    Console.SetCursorPosition(0, 1);
-                                    RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
+                                    if (livesCount > 1)
+                                    {
+                                        livesCount--;
+                                        Console.SetCursorPosition(0, 1);
+                                        RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
+                                    }
+                                    else if (livesCount == 1)
+                                    {
+                                        livesCount--;
+                                        GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
+                                        return;
+                                    }
                                 }
-                                else if (livesCount == 1)
+                                else if (newFallingObject is Del)
                                 {
-                                    livesCount--;
-                                    GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
-                                    return;
+                                    if (index != 0)
+                                    {
+                                        UpdateAnswerWhenDeleteCaught();
+                                    }
+                                    Console.SetCursorPosition(0, 8);
+                                    RedrawAnswerBar(container);     // Put here redrawing only answer bar
                                 }
+                                else
+                                {
+                                    UpdateAnswerWhenLetterCaught(newFallingObject);
+                                    Console.SetCursorPosition(0, 8);
+                                    RedrawAnswerBar(container);
+                                }
+
+                                //redraw player at collision
+                                PrintOnPosition(newFallingObject.X, newFallingObject.Y, "=", player.Color);
                             }
+
                         }
                         else
                         {
-                            PrintOnPosition(newBomb.X, newBomb.Y, newBomb.Str, newBomb.Color);
+                            PrintOnPosition(newFallingObject.X, newFallingObject.Y, newFallingObject.Str, newFallingObject.Color);
                         }
-                        bombs[b] = newBomb;
+                        fallingObjects[i] = newFallingObject;
                     }
                 }
-                #endregion
-
-                #region Move Falling Letters
-                for (int l = 0; l < letters.Count; l++)
-                {
-                    var letter = letters[l];
-                    if (letter.Y < consoleHeight - 4)
-                    {
-                        PrintOnPosition(letter.X, letter.Y, " ", ConsoleColor.White);
-                        letter.FallDown();
-
-                        if (letter.Y == consoleHeight - 4)
-                        {
-                            if (letter.X == player.X || letter.X == player.X + 1 || letter.X == player.X + 2)
-                            {
-                                PrintOnPosition(letter.X, letter.Y, " ", ConsoleColor.White);
-                                PrintOnPosition(letter.X, letter.Y, "=", player.Color);
-                                UpdateAnswerWhenLetterCaught(letter);
-                                Console.SetCursorPosition(0, 8);
-                                RedrawAnswerBar(container);
-                            }
-                        }
-                        else
-                        {
-                            PrintOnPosition(letter.X, letter.Y, letter.Str, letter.Color);
-                        }
-                        letters[l] = letter;
-                    }
-                }
-                #endregion
-
-                #region Move Falling Del
-                // Movе Falling DEL 
-                for (int d = 0; d < dels.Count; d++)
-                {
-                    var del = dels[d];
-                    if (del.Y < consoleHeight - 4)
-                    {
-                        PrintOnPosition(del.X, del.Y, " ", ConsoleColor.White);
-                        del.FallDown();
-
-                        if (del.Y == consoleHeight - 4)
-                        {
-                            if (del.X == player.X || del.X == player.X + 1 || del.X == player.X + 2)
-                            {
-                                if (index != 0)
-                                {
-                                    UpdateAnswerWhenDeleteCaught();
-                                }
-                                PrintOnPosition(del.X, del.Y, " ", ConsoleColor.White);
-                                PrintOnPosition(del.X, del.Y, "=", player.Color);
-                                Console.SetCursorPosition(0, 8);
-                                RedrawAnswerBar(container);     // Put here redrawing only answer bar
-                            }
-                        }
-                        else
-                        {
-                            PrintOnPosition(del.X, del.Y, del.Str, del.Color);
-                        }
-                    }
-                    dels[d] = del;
-                }
-                #endregion
-
                 watch.Restart();
             }
 
@@ -291,7 +243,7 @@ internal class MainGame
             {
                 username.RemoveAt(indexCurrentPlayer + 1);
             }
-                
+
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
