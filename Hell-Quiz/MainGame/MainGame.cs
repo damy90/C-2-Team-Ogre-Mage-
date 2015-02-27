@@ -196,16 +196,20 @@ internal class MainGame
                                 //redraw player at collision
                                 PrintOnPosition(newFallingObject.X, newFallingObject.Y, "=", player.Color);
                             }
-
                         }
                         else
                         {
                             PrintOnPosition(newFallingObject.X, newFallingObject.Y, newFallingObject.Str, newFallingObject.Color);
                         }
-                        fallingObjects[i] = newFallingObject;
                     }
                 }
                 watch.Restart();
+
+                //falling objects garbadge collection
+                if (fallingObjects.Count > 70 && fallingObjects[30].Y == consoleHeight - 4)
+                {
+                    fallingObjects.RemoveRange(0, 30);
+                }
             }
 
             if (container[container.Length - 1] != '*')
