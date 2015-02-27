@@ -103,6 +103,7 @@ internal class MainGame
                 }
                 PrintOnPosition(player.X, player.Y, player.Str, player.Color);
             }
+            
             #endregion
 
             #region Adding falling objects to list
@@ -150,19 +151,17 @@ internal class MainGame
                 //move everything
                 for (int i = 0; i < fallingObjects.Count; i++)
                 {
-                    var newFallingObject = fallingObjects[i];
-
-                    if (newFallingObject.Y < consoleHeight - 4)
+                    if (fallingObjects[i].Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(newFallingObject.X, newFallingObject.Y, " ", ConsoleColor.White);
-                        newFallingObject.FallDown();
-                        if (newFallingObject.Y == consoleHeight - 4)
-                        {
-                            if (newFallingObject.X == player.X || newFallingObject.X == player.X + 1 || newFallingObject.X == player.X + 2)
-                            {
-                                PrintOnPosition(newFallingObject.X, newFallingObject.Y, " ", ConsoleColor.White);
+                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", ConsoleColor.White);
+                        fallingObjects[i].FallDown();
+                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
-                                if (newFallingObject is Bomb)
+                        if (fallingObjects[i].Y == consoleHeight - 4)
+                        {
+                            if (fallingObjects[i].X == player.X || fallingObjects[i].X == player.X + 1 || fallingObjects[i].X == player.X + 2)
+                            {
+                                if (fallingObjects[i] is Bomb)
                                 {
                                     if (livesCount > 1)
                                     {
@@ -177,7 +176,7 @@ internal class MainGame
                                         return;
                                     }
                                 }
-                                else if (newFallingObject is Del)
+                                else if (fallingObjects[i] is Del)
                                 {
                                     if (index != 0)
                                     {
@@ -188,25 +187,29 @@ internal class MainGame
                                 }
                                 else
                                 {
-                                    UpdateAnswerWhenLetterCaught(newFallingObject);
+                                    UpdateAnswerWhenLetterCaught(fallingObjects[i]);
                                     Console.SetCursorPosition(0, 8);
                                     RedrawAnswerBar(container);
                                 }
-
-                                //redraw player at collision
-                                PrintOnPosition(newFallingObject.X, newFallingObject.Y, "=", player.Color);
                             }
+
+                            //redraw player after collision
+                            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
                         }
-                        else
-                        {
-                            PrintOnPosition(newFallingObject.X, newFallingObject.Y, newFallingObject.Str, newFallingObject.Color);
-                        }
+                    }
+                    // erace, move out of the field and forget
+                    else if (fallingObjects[i].Y == consoleHeight - 4)
+                    {
+                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", fallingObjects[i].Color);
+                        fallingObjects[i].FallDown();
                     }
                 }
                 watch.Restart();
 
                 //falling objects garbadge collection
-                if (fallingObjects.Count > 70 && fallingObjects[30].Y == consoleHeight - 4)
+                //CAUTION !1!!1ONE!!11 do not delete anything that hasn't been eraced from the console yet
+                //Side effects may include Falling Snow Effect (the object sticks to the bottom of the screen)
+                if (fallingObjects.Count > 70 && fallingObjects[40].Y == consoleHeight - 4)
                 {
                     fallingObjects.RemoveRange(0, 30);
                 }
