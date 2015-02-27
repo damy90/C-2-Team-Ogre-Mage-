@@ -157,46 +157,44 @@ internal class MainGame
                         fallingObjects[i].FallDown();
                         PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
-                        if (fallingObjects[i].Y == consoleHeight - 4)
+                        if ((fallingObjects[i].Y == consoleHeight - 4) &&
+                            (fallingObjects[i].X == player.X || fallingObjects[i].X == player.X + 1 || fallingObjects[i].X == player.X + 2))
                         {
-                            if (fallingObjects[i].X == player.X || fallingObjects[i].X == player.X + 1 || fallingObjects[i].X == player.X + 2)
+                            if (fallingObjects[i] is Bomb)
                             {
-                                if (fallingObjects[i] is Bomb)
+                                if (livesCount > 1)
                                 {
-                                    if (livesCount > 1)
-                                    {
-                                        livesCount--;
-                                        Console.SetCursorPosition(0, 1);
-                                        RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
-                                    }
-                                    else if (livesCount == 1)
-                                    {
-                                        livesCount--;
-                                        GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
-                                        return;
-                                    }
+                                    livesCount--;
+                                    Console.SetCursorPosition(0, 1);
+                                    RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
                                 }
-                                else if (fallingObjects[i] is Del)
+                                else if (livesCount == 1)
                                 {
-                                    if (index != 0)
-                                    {
-                                        UpdateAnswerWhenDeleteCaught();
-                                    }
-                                    Console.SetCursorPosition(0, 8);
-                                    RedrawAnswerBar(container);     // Put here redrawing only answer bar
+                                    livesCount--;
+                                    GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
+                                    return;
                                 }
-                                else
-                                {
-                                    UpdateAnswerWhenLetterCaught(fallingObjects[i]);
-                                    Console.SetCursorPosition(0, 8);
-                                    RedrawAnswerBar(container);
-                                }
-
-                                //redraw player after collision
-                                PrintOnPosition(player.X, player.Y, player.Str, player.Color);
-                                //object already eraced from the console
-                                fallingObjects[i].FallDown();
                             }
+                            else if (fallingObjects[i] is Del)
+                            {
+                                if (index != 0)
+                                {
+                                    UpdateAnswerWhenDeleteCaught();
+                                }
+                                Console.SetCursorPosition(0, 8);
+                                RedrawAnswerBar(container);     // Put here redrawing only answer bar
+                            }
+                            else
+                            {
+                                UpdateAnswerWhenLetterCaught(fallingObjects[i]);
+                                Console.SetCursorPosition(0, 8);
+                                RedrawAnswerBar(container);
+                            }
+
+                            //redraw player after collision
+                            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+                            //object already eraced from the console
+                            fallingObjects[i].FallDown();
                         }
                     }
                     // erace, move out of the field and forget
@@ -206,6 +204,7 @@ internal class MainGame
                         fallingObjects[i].FallDown();
                     }
                 }
+
                 watch.Restart();
 
                 //falling objects garbage collection
