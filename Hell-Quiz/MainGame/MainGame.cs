@@ -103,7 +103,7 @@ internal class MainGame
                 }
                 PrintOnPosition(player.X, player.Y, player.Str, player.Color);
             }
-            
+
             #endregion
 
             #region Adding falling objects to list
@@ -191,10 +191,12 @@ internal class MainGame
                                     Console.SetCursorPosition(0, 8);
                                     RedrawAnswerBar(container);
                                 }
-                            }
 
-                            //redraw player after collision
-                            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+                                //redraw player after collision
+                                PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+                                //object already eraced from the console
+                                fallingObjects[i].FallDown();
+                            }
                         }
                     }
                     // erace, move out of the field and forget
@@ -206,10 +208,10 @@ internal class MainGame
                 }
                 watch.Restart();
 
-                //falling objects garbadge collection
+                //falling objects garbage collection
                 //CAUTION !1!!1ONE!!11 do not delete anything that hasn't been eraced from the console yet
                 //Side effects may include Falling Snow Effect (the object sticks to the bottom of the screen)
-                if (fallingObjects.Count > 70 && fallingObjects[40].Y == consoleHeight - 4)
+                if (fallingObjects.Count > 70 && fallingObjects[40].Y >= consoleHeight - 4)
                 {
                     fallingObjects.RemoveRange(0, 30);
                 }
