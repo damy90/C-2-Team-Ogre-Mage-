@@ -23,7 +23,7 @@ internal class MainGame
     static int livesCount = 3;
     static int gameFieldTop = 12;
 
-    static string container;
+    static string container; //TODO: container should be used and generated only when drawing. Introduce var playerAnswer
     static string gameOverMessage = "GAME OVER!";
     static int index = 0;   //TODO: Hu? <sarcasm>Verry descriptive!</sarcasm> Dany
     static char[] addLetter;
@@ -159,11 +159,6 @@ internal class MainGame
                         PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
                         CollisionDetection(fallingObjects[i], player, ref isGameOver);
-
-                        if (isGameOver)
-                        {
-                            return;
-                        }
                     }
 
                     // erace, move out of the field and forget
@@ -185,15 +180,19 @@ internal class MainGame
                 }
             }
 
-            if (container[container.Length - 1] != '*')
+            //game end handeling
+            if (isGameOver)
             {
                 container = container.ToUpper();
                 if (correctAnswer.Equals(container))
                 {
                     score += (answer.Length * 20);
-                    // TODO: Overwrite, factor in time
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    Console.ReadLine();
+                    // TODO: Overwrite, factor in time, Now what?
                 }
-                else
+                else //lives=0, incorrect answer
                 {
                     // Lose game.
                     GameOverScreen();
@@ -203,7 +202,7 @@ internal class MainGame
             }
         }   //end while true
     }
- 
+
     private static void CollisionDetection(Letter fallingObject, Player player, ref bool isGameOver)
     {
         if ((fallingObject.Y == consoleHeight - 4) &&
@@ -225,9 +224,7 @@ internal class MainGame
                 else if (livesCount == 1)
                 {
                     livesCount--;
-                    GameOverScreen(); // GAME OVER.
                     isGameOver = true;
-                    return;
                 }
             }
             else if (fallingObject is Del)
@@ -241,9 +238,21 @@ internal class MainGame
             }
             else
             {
-                UpdateAnswerWhenLetterCaught(fallingObject);
-                Console.SetCursorPosition(0, 8);
-                RedrawAnswerBar(container);
+                if (container.Trim('*').Length < correctAnswer.Length)
+                {
+                    UpdateAnswerWhenLetterCaught(fallingObject);
+                    Console.SetCursorPosition(0, 8);
+                    RedrawAnswerBar(container);
+
+                    if (container.Equals(correctAnswer))
+                    {
+                        isGameOver = true;
+                    }
+                }
+                else
+                {
+                    isGameOver = true;
+                }
             }
         }
     }
@@ -277,9 +286,7 @@ internal class MainGame
             File.WriteAllLines(pathHistory, username);
         }
 
-
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
-
     }
 
     private static void CreateFile()
