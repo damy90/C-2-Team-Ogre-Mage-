@@ -25,7 +25,7 @@ internal class MainGame
 
     static string container;
     static string gameOverMessage = "GAME OVER!";
-    static int index = 0;
+    static int index = 0;   //TODO: Hu? <sarcasm>Verry descriptive!</sarcasm> Dany
     static char[] addLetter;
     static int nextQuestion = random.Next(questions.Count);
     static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
@@ -46,7 +46,7 @@ internal class MainGame
         Console.CursorVisible = false;
         StartScreen();
 
-        StartGame(DrawNewQuestion(), container, consoleWidth, consoleHeight);
+        StartGame(DrawNewQuestion(), container);
     }
 
     static string DrawNewQuestion()
@@ -57,8 +57,9 @@ internal class MainGame
         return question;
     }
 
-    static void StartGame(string question, string answer, int consoleWidth, int consoleHeight)
+    static void StartGame(string question, string answer)
     {
+        bool isGameOver = false;
         ModifyInfoBar(question, answer);
         var randomGenerator = new Random();
 
@@ -157,46 +158,14 @@ internal class MainGame
                         fallingObjects[i].FallDown();
                         PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
-                        if ((fallingObjects[i].Y == consoleHeight - 4) &&
-                            (fallingObjects[i].X == player.X || fallingObjects[i].X == player.X + 1 || fallingObjects[i].X == player.X + 2))
-                        {
-                            if (fallingObjects[i] is Bomb)
-                            {
-                                if (livesCount > 1)
-                                {
-                                    livesCount--;
-                                    Console.SetCursorPosition(0, 1);
-                                    RedrawLivesBar('♥');            // Put here method for drawing only the lives count bar.
-                                }
-                                else if (livesCount == 1)
-                                {
-                                    livesCount--;
-                                    GameOverScreen(consoleWidth, consoleHeight); // GAME OVER.
-                                    return;
-                                }
-                            }
-                            else if (fallingObjects[i] is Del)
-                            {
-                                if (index != 0)
-                                {
-                                    UpdateAnswerWhenDeleteCaught();
-                                }
-                                Console.SetCursorPosition(0, 8);
-                                RedrawAnswerBar(container);     // Put here redrawing only answer bar
-                            }
-                            else
-                            {
-                                UpdateAnswerWhenLetterCaught(fallingObjects[i]);
-                                Console.SetCursorPosition(0, 8);
-                                RedrawAnswerBar(container);
-                            }
+                        CollisionDetection(fallingObjects[i], player, ref isGameOver);
 
-                            //redraw player after collision
-                            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
-                            //object already eraced from the console
-                            fallingObjects[i].FallDown();
+                        if (isGameOver)
+                        {
+                            return;
                         }
                     }
+
                     // erace, move out of the field and forget
                     else if (fallingObjects[i].Y == consoleHeight - 4)
                     {
@@ -222,20 +191,64 @@ internal class MainGame
                 if (correctAnswer.Equals(container))
                 {
                     score += (answer.Length * 20);
-                    // TODO: Overwrite 
+                    // TODO: Overwrite, factor in time
                 }
                 else
                 {
                     // Lose game.
-                    GameOverScreen(consoleWidth, consoleHeight);
+                    GameOverScreen();
                     Console.ReadLine();
                     return;
                 }
             }
         }   //end while true
     }
+ 
+    private static void CollisionDetection(Letter fallingObject, Player player, ref bool isGameOver)
+    {
+        if ((fallingObject.Y == consoleHeight - 4) &&
+            (fallingObject.X == player.X || fallingObject.X == player.X + 1 || fallingObject.X == player.X + 2))
+        {
+            //redraw player after collision
+            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+            //object already eraced from the console
+            fallingObject.FallDown();
 
-    private static void GameOverScreen(int consoleWidth, int consoleHeight)
+            if (fallingObject is Bomb)
+            {
+                if (livesCount > 1)
+                {
+                    livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                }
+                else if (livesCount == 1)
+                {
+                    livesCount--;
+                    GameOverScreen(); // GAME OVER.
+                    isGameOver = true;
+                    return;
+                }
+            }
+            else if (fallingObject is Del)
+            {
+                if (index != 0)
+                {
+                    UpdateAnswerWhenDeleteCaught();
+                }
+                Console.SetCursorPosition(0, 8);
+                RedrawAnswerBar(container);     // Put here redrawing only answer bar
+            }
+            else
+            {
+                UpdateAnswerWhenLetterCaught(fallingObject);
+                Console.SetCursorPosition(0, 8);
+                RedrawAnswerBar(container);
+            }
+        }
+    }
+
+    private static void GameOverScreen()
     {
         Console.Clear();
         string gameOverInfo = "The correct answer is: ";
@@ -295,7 +308,6 @@ internal class MainGame
     {
         //Console.BackgroundColor = ConsoleColor.DarkGray;
 
-
         string gameDescription = "Game Description:";
         string enterPlayerName = "Enter username:";
         string howToPlay = "Answer the question.";
@@ -309,7 +321,7 @@ internal class MainGame
         Console.WriteLine(enterPlayerName);
         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
 
-        inputUsername(Console.ReadLine());
+        InputUsername(Console.ReadLine());
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, consoleHeight / 2 - 6);
@@ -329,7 +341,7 @@ internal class MainGame
         Console.Clear();
     }
 
-    private static void inputUsername(string inputUsername)
+    private static void InputUsername(string inputUsername)
     {
         if (username.Contains(inputUsername))
         {
@@ -362,8 +374,9 @@ internal class MainGame
         container = string.Join("", addLetter);
     }
 
-    private static void RedrawLivesBar(char heart)
+    private static void RedrawLivesBar()
     {
+        char heart = '♥';
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(" LIVES: "
@@ -399,8 +412,6 @@ internal class MainGame
 
     private static void ModifyInfoBar(string question, string answer)
     {
-        char heart = '♥';
-
         Console.SetCursorPosition(0, 0);
 
         #region Draw Infobar
@@ -408,7 +419,7 @@ internal class MainGame
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.Write(new string(' ', consoleWidth));
 
-        RedrawLivesBar(heart);
+        RedrawLivesBar();
 
         Console.BackgroundColor = ConsoleColor.DarkGray;
         Console.ForegroundColor = ConsoleColor.DarkRed;
