@@ -1,6 +1,6 @@
 ﻿using System;
 
-class FallingObject : GameFieldObject
+abstract class FallingObject : GameFieldObject
 {
     public FallingObject(int xPos, int gameFieldTop, string letter, ConsoleColor color)
     {

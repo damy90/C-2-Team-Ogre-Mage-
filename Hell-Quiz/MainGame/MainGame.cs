@@ -60,21 +60,18 @@ internal class MainGame
     static void StartGame(string question, string answer)
     {
         bool isGameOver = false;
+        int lettersPerRowMax = 2;
+        int bonusCharsPerRowMax = 1;
+
         ModifyInfoBar(question, answer);
-        var randomGenerator = new Random();
 
         var player = new Player(consoleWidth / 2, consoleHeight - 4);
 
         PrintOnPosition(player.X, player.Y, player.Str, player.Color);
 
-        var watch = Stopwatch.StartNew();
-        var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will drop new bomb
-        var watchLetters = Stopwatch.StartNew(); // Same for letters
-        var watchDels = Stopwatch.StartNew();    // Same for deletes
-
-        //TODO use only 1 List<GamefieldObjects>() and let the collision detection figure out which is which
-        //this is somewhat stupid
         var fallingObjects = new List<FallingObject>(); //TODO: compare objects by their position, use a data structure that doesn't allow multiple equal(on the same position) objects
+
+        var watch = Stopwatch.StartNew();
 
         while (true)
         {
@@ -107,65 +104,15 @@ internal class MainGame
 
             #endregion
 
-            #region Adding falling objects to list
-
-            #region Add bombs to list
-            // Add bombs to list  
-            if (watchBombs.ElapsedMilliseconds >= 400) // Define how frequent bombs are droping
-            {
-                int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
-                var bomb = new Bomb(randomXPosition, gameFieldTop);
-
-                fallingObjects.Add(bomb);
-                watchBombs.Restart();
-            }
-            #endregion
-
-            #region Add letters to list
-            // Add letters to list
-            //if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
-            //{
-            //    int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
-            //    string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
-            //    var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
-
-            //    fallingObjects.Add(letter);
-            //    watchLetters.Restart();
-            //}
-            #endregion
-
-            #region Add deletes to list
-            // Add dels to list
-            if (watchDels.ElapsedMilliseconds >= 5000) // Define how frequent deletes are droping
-            {
-                var del = new Del(randomGenerator.Next(2, consoleWidth - 2), gameFieldTop);
-
-                fallingObjects.Add(del);
-                watchDels.Restart();
-            }
-            #endregion
-
-            #endregion
-
+            //next game step
             if (watch.ElapsedMilliseconds >= 200)
             {
-                int lettersPerRowMax = 2;
-                int lettersCountNewRow = random.Next(0, lettersPerRowMax);
-                for (int i = 0; i < lettersCountNewRow; i++)
-                {
-                    int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
-                    string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
-                    var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
-
-                    fallingObjects.Add(letter);
-                }
-
                 //move everything
                 for (int i = 0; i < fallingObjects.Count; i++)
                 {
                     if (fallingObjects[i].Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", ConsoleColor.White);
+                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", ConsoleColor.White);//clean previous position
                         fallingObjects[i].FallDown();
                         PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
@@ -189,6 +136,10 @@ internal class MainGame
                 {
                     fallingObjects.RemoveRange(0, 30);
                 }
+
+                //generate new objects
+                RandomFallingObjectsGenerator(fallingObjects, lettersPerRowMax, correctAnswer.ToArray());
+                RandomFallingObjectsGenerator(fallingObjects, bonusCharsPerRowMax, new char[] {'&', '&', '&', '<'});//The ratio of occurances in the game depends on the ratio in the array
             }
 
             //game end handeling
@@ -212,6 +163,33 @@ internal class MainGame
                 }
             }
         }   //end while true
+    }
+
+    private static void RandomFallingObjectsGenerator(List<FallingObject> fallingObjects, int lettersPerRowMax, char[] characters)
+    {
+        int lettersCountNewRow = random.Next(0, lettersPerRowMax + 1);
+
+        for (int i = 0; i < lettersCountNewRow; i++)
+        {
+            int randomXPosition = random.Next(2, consoleWidth - 2);
+            string randomChar = (characters[random.Next(0, characters.Length)]).ToString();
+            FallingObject fallingObject;
+
+            if (randomChar.Equals("&"))
+            {
+                fallingObject = new Bomb(randomXPosition, gameFieldTop);
+            }
+            else if (randomChar.Equals("<"))
+            {
+                fallingObject = new Del(randomXPosition, gameFieldTop);
+            }
+            else
+            {
+                fallingObject = new Letter(randomXPosition, gameFieldTop, randomChar);
+            }
+
+            fallingObjects.Add(fallingObject);
+        }
     }
 
     private static void CollisionDetection(FallingObject fallingObject, Player player, ref bool isGameOver)
