@@ -110,9 +110,12 @@ internal class MainGame
                     fallingObjects.RemoveRange(0, 30);
                 }
 
-                //generate new objects
-                RandomFallingObjectsGenerator(fallingObjects, lettersPerRowMax, correctAnswer.ToArray());
-                RandomFallingObjectsGenerator(fallingObjects, bonusCharsPerRowMax, new char[] {'&', '&', '&', '<'});//The ratio of occurances in the game depends on the ratio in the array
+                //generated objects must not be on the same coordinates
+                HashSet<FallingObject> fallingObjectsNewRow = new HashSet<FallingObject>();
+                RandomFallingObjectsGenerator(fallingObjectsNewRow, lettersPerRowMax, correctAnswer.ToArray());
+                RandomFallingObjectsGenerator(fallingObjectsNewRow, bonusCharsPerRowMax, new char[] {'&', '&', '&', '<'});//The ratio of occurances in the game depends on the ratio in the array
+                fallingObjects.AddRange(fallingObjectsNewRow);
+                
             }
 
             //game end handeling
@@ -167,7 +170,7 @@ internal class MainGame
         }
     }
 
-    private static void RandomFallingObjectsGenerator(List<FallingObject> fallingObjects, int lettersPerRowMax, char[] characters)
+    private static void RandomFallingObjectsGenerator(HashSet<FallingObject> fallingObjectsNewRow, int lettersPerRowMax, char[] characters)
     {
         int lettersCountNewRow = random.Next(0, lettersPerRowMax + 1);
 
@@ -190,7 +193,8 @@ internal class MainGame
                 fallingObject = new Letter(randomXPosition, gameFieldTop, randomChar);
             }
 
-            fallingObjects.Add(fallingObject);
+            fallingObjectsNewRow.Add(fallingObject);
+            //fallingObjectsNewRow.
         }
     }
 
