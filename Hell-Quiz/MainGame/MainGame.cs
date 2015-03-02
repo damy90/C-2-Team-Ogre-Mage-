@@ -73,36 +73,9 @@ internal class MainGame
 
         var watch = Stopwatch.StartNew();
 
-        while (true)
+        while (true) //TODO: add endGame condition here
         {
-            #region Pressed Key, Moving Playes
-            while (Console.KeyAvailable)
-            {
-
-                ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-                oldPosition = player.X;
-
-                if (pressedKey.Key == ConsoleKey.LeftArrow)
-                {
-                    if ((player.X - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
-                    {
-                        player.MovePlayer(-1);
-                        PrintOnPosition(oldPosition + 2, player.Y, " ", player.Color);
-                    }
-                }
-                if (pressedKey.Key == ConsoleKey.RightArrow)
-                {
-                    if (player.X + 2 < (consoleWidth - 2))
-                    // < ConsoleWidth - 2, because of the boundaries of the user interface.
-                    {
-                        player.MovePlayer(1);
-                        PrintOnPosition(oldPosition, player.Y, " ", player.Color);
-                    }
-                }
-                PrintOnPosition(player.X, player.Y, player.Str, player.Color);
-            }
-
-            #endregion
+            MovePlayer(player);
 
             //next game step
             if (watch.ElapsedMilliseconds >= 200)
@@ -163,6 +136,35 @@ internal class MainGame
                 }
             }
         }   //end while true
+    }
+
+    private static void MovePlayer(Player player)
+    {
+        while (Console.KeyAvailable)
+        {
+
+            ConsoleKeyInfo pressedKey = Console.ReadKey(true);
+            oldPosition = player.X;
+
+            if (pressedKey.Key == ConsoleKey.LeftArrow)
+            {
+                if ((player.X - 1) >= 1) // >= 1 Because of the boundaries of the user interface.
+                {
+                    player.MovePlayer(-1);
+                    PrintOnPosition(oldPosition + 2, player.Y, " ", player.Color);
+                }
+            }
+            if (pressedKey.Key == ConsoleKey.RightArrow)
+            {
+                if (player.X + 2 < (consoleWidth - 2))
+                // < ConsoleWidth - 2, because of the boundaries of the user interface.
+                {
+                    player.MovePlayer(1);
+                    PrintOnPosition(oldPosition, player.Y, " ", player.Color);
+                }
+            }
+            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
+        }
     }
 
     private static void RandomFallingObjectsGenerator(List<FallingObject> fallingObjects, int lettersPerRowMax, char[] characters)
