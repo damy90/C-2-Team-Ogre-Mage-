@@ -1,17 +1,10 @@
 ﻿using System;
 
-class Letter : GameFieldObject
+class Letter : FallingObject
 {
     public Letter(int xPos, int gameFieldTop, string letter)
+        : base(xPos, gameFieldTop, letter, ConsoleColor.White)
     {
-        X = xPos;
-        Y = gameFieldTop;
-        Str = letter;
-        Color = ConsoleColor.White;
-    }
 
-    public void FallDown()
-    {
-        Y++;
     }
 }

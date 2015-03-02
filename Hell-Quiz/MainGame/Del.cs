@@ -1,12 +1,11 @@
 ﻿using System;
 
 
-    class Del:Letter
+    class Del:FallingObject
     {
         public Del(int xPos, int gameFieldTop)
-            : base(xPos, gameFieldTop, "<")//call constructor for letter
+            : base(xPos, gameFieldTop, "<", ConsoleColor.DarkGreen)//call constructor for letter
         {
-            //TODO don't set color twice
-            Color = ConsoleColor.DarkGreen;
+
         }
     }

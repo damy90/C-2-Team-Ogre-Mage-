@@ -74,7 +74,7 @@ internal class MainGame
 
         //TODO use only 1 List<GamefieldObjects>() and let the collision detection figure out which is which
         //this is somewhat stupid
-        var fallingObjects = new List<Letter>();
+        var fallingObjects = new List<FallingObject>(); //TODO: compare objects by their position, use a data structure that doesn't allow multiple equal(on the same position) objects
 
         while (true)
         {
@@ -123,15 +123,15 @@ internal class MainGame
 
             #region Add letters to list
             // Add letters to list
-            if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
-            {
-                int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
-                string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
-                var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
+            //if (watchLetters.ElapsedMilliseconds >= 300) // Define how frequent letters are dropping
+            //{
+            //    int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
+            //    string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
+            //    var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
 
-                fallingObjects.Add(letter);
-                watchLetters.Restart();
-            }
+            //    fallingObjects.Add(letter);
+            //    watchLetters.Restart();
+            //}
             #endregion
 
             #region Add deletes to list
@@ -149,6 +149,17 @@ internal class MainGame
 
             if (watch.ElapsedMilliseconds >= 200)
             {
+                int lettersPerRowMax = 2;
+                int lettersCountNewRow = random.Next(0, lettersPerRowMax);
+                for (int i = 0; i < lettersCountNewRow; i++)
+                {
+                    int randomXPosition = randomGenerator.Next(2, consoleWidth - 2);
+                    string randomLetter = ((char)correctAnswer[randomGenerator.Next(0, correctAnswer.Length)]).ToString();
+                    var letter = new Letter(randomXPosition, gameFieldTop, randomLetter);
+
+                    fallingObjects.Add(letter);
+                }
+
                 //move everything
                 for (int i = 0; i < fallingObjects.Count; i++)
                 {
@@ -158,7 +169,7 @@ internal class MainGame
                         fallingObjects[i].FallDown();
                         PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
 
-                        CollisionDetection(fallingObjects[i], player, ref isGameOver);
+                        CollisionDetection(fallingObjects[i], player, ref isGameOver);// TODO: call when player moves
                     }
 
                     // erace, move out of the field and forget
@@ -203,7 +214,7 @@ internal class MainGame
         }   //end while true
     }
 
-    private static void CollisionDetection(Letter fallingObject, Player player, ref bool isGameOver)
+    private static void CollisionDetection(FallingObject fallingObject, Player player, ref bool isGameOver)
     {
         if ((fallingObject.Y == consoleHeight - 4) &&
             (fallingObject.X == player.X || fallingObject.X == player.X + 1 || fallingObject.X == player.X + 2))
@@ -365,7 +376,7 @@ internal class MainGame
     }
 
 
-    private static void UpdateAnswerWhenLetterCaught(Letter letter)
+    private static void UpdateAnswerWhenLetterCaught(FallingObject letter)
     {
         addLetter = container.ToCharArray();
         addLetter[index] = letter.Str[0];

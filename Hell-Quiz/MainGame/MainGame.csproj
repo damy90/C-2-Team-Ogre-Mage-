@@ -43,8 +43,9 @@
   <ItemGroup>
     <Compile Include="Bomb.cs" />
     <Compile Include="Del.cs" />
-    <Compile Include="Letter.cs" />
+    <Compile Include="FallingObject.cs" />
     <Compile Include="GameFieldObject.cs" />
+    <Compile Include="Letter.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
