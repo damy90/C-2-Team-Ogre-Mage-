@@ -216,7 +216,14 @@ internal class MainGame
                     RedrawLivesBar();
                     isGameOver = true;
                 }
-                else if (questions.Count > 0 && answers.Count > 0)
+                else if((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
+                {
+                    livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    isGameOver = true;
+                }
+                else if (questions.Count >= 1 && answers.Count >= 1)
                 {
                     indexOfCatchedLetter = 0;
                     livesCount--;
@@ -291,7 +298,10 @@ internal class MainGame
             }
             else if (fallingObject is Letter)
             {
-                UpdateAnswerWhenLetterCaught(fallingObject);
+                if(indexOfCatchedLetter<correctAnswer.Length)
+                {
+                    UpdateAnswerWhenLetterCaught(fallingObject);
+                }
                 Console.SetCursorPosition(0, 8);
                 RedrawAnswerBar(container);
             }
@@ -303,9 +313,9 @@ internal class MainGame
         Console.Clear();
         string gameOverInfo = "The correct answer is: ";
         string scoreInfo = "Your current score is: ";
-        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length/2, (consoleHeight / 2 - 2), gameOverMessage, ConsoleColor.DarkRed);
-        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length/2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
-        PrintOnPosition(consoleWidth / 2 - scoreInfo.Length/2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
+        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length / 2, (consoleHeight / 2 - 2), gameOverMessage, ConsoleColor.DarkRed);
+        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length / 2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        PrintOnPosition(consoleWidth / 2 - scoreInfo.Length / 2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
 
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
 
