@@ -124,7 +124,7 @@ internal class MainGame
                 //hashsets adding directly to the list would break the garbage collection
                 HashSet<FallingObject> fallingObjectsNewRow = new HashSet<FallingObject>();
                 RandomFallingObjectsGenerator(fallingObjectsNewRow, lettersPerRowMax, correctAnswer.ToArray());
-                RandomFallingObjectsGenerator(fallingObjectsNewRow, bonusCharsPerRowMax, new char[] {'&', '&', '&', '<'});//The ratio of occurances in the game depends on the ratio in the array
+                RandomFallingObjectsGenerator(fallingObjectsNewRow, bonusCharsPerRowMax, new char[] { '&', '&', '&', '<' });//The ratio of occurances in the game depends on the ratio in the array
                 fallingObjects.AddRange(fallingObjectsNewRow);
             }
 
@@ -154,7 +154,7 @@ internal class MainGame
                     RedrawLivesBar();
                     isGameOver = true;
                 }
-                else if((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
+                else if ((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
                 {
                     livesCount--;
                     Console.SetCursorPosition(0, 1);
@@ -228,24 +228,24 @@ internal class MainGame
             }
 
             if (pressedKey.Key == ConsoleKey.Q)
+            {
+                if (questions.Count >= 1 && answers.Count >= 1)
                 {
-                    if (questions.Count >= 1 && answers.Count >= 1)
-                    {
-                        indexOfCatchedLetter = 0;
-                        Console.SetCursorPosition(0, 4);
-                        RedrawQuestionBar(DrawNewQuestion());
-                        Console.SetCursorPosition(0, 8);
-                        RedrawAnswerBar(container);
-                    }
+                    indexOfCatchedLetter = 0;
+                    Console.SetCursorPosition(0, 4);
+                    RedrawQuestionBar(DrawNewQuestion());
+                    Console.SetCursorPosition(0, 8);
+                    RedrawAnswerBar(container);
                 }
-                if (pressedKey.Key == ConsoleKey.P)
-                {
-                    soundPlayer.Play();
-                }
-                if (pressedKey.Key == ConsoleKey.S)
-                {
-                    soundPlayer.Stop();
-                }
+            }
+            if (pressedKey.Key == ConsoleKey.P)
+            {
+                soundPlayer.Play();
+            }
+            if (pressedKey.Key == ConsoleKey.S)
+            {
+                soundPlayer.Stop();
+            }
             PrintOnPosition(player.X, player.Y, player.Str, player.Color);
         }
     }
@@ -315,7 +315,7 @@ internal class MainGame
             }
             else if (fallingObject is Letter)
             {
-                if(indexOfCatchedLetter<correctAnswer.Length)
+                if (indexOfCatchedLetter < correctAnswer.Length)
                 {
                     UpdateAnswerWhenLetterCaught(fallingObject);
                 }
@@ -334,8 +334,7 @@ internal class MainGame
         PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length / 2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
         PrintOnPosition(consoleWidth / 2 - scoreInfo.Length / 2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
 
-        Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
-
+        
 
         //writing to the scoreFile
         if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
@@ -357,6 +356,8 @@ internal class MainGame
             File.WriteAllLines(pathHistory, username);
         }
 
+        PrintScoreboard();
+
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
     }
 
@@ -366,7 +367,7 @@ internal class MainGame
         {
             if (File.Exists(pathHistory))
             {
-                username = (File.ReadAllLines(@"questions\username.txt")).ToList();
+                username = (File.ReadAllLines(@"..\..\Data\username.txt")).ToList();
                 return;
             }
             using (FileStream fs = File.Create(pathHistory))
@@ -609,5 +610,17 @@ internal class MainGame
         }
 
         return questions;
+    }
+
+    private static void PrintScoreboard()
+    {
+        int scoreboardLeft = consoleWidth - 70;
+        int scoreboardTop = consoleHeight - 20;
+        int printCount = Math.Min(username.Count, 5);
+        for (int i = 0; i < printCount; i += 2)
+        {
+            Console.SetCursorPosition(scoreboardLeft, scoreboardTop + i);
+            Console.Write("{0}:\t\t{1} points", username[i], username[i + 1]);
+        }
     }
 }
