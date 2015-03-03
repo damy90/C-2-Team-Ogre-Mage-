@@ -337,10 +337,31 @@ internal class MainGame
             username.Insert(indexCurrentPlayer + 1, score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-
+        PrintHightScore();
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
     }
+    private static void PrintHightScore()
+    {
+        int highScorePosX = consoleWidth / 2;
+        int hightScorePosY = consoleHeight / 2 + 5;
+        string highScoreTitle = "HIGH SCORES";
+        PrintOnPosition(highScorePosX - (highScoreTitle.Length/2), hightScorePosY, highScoreTitle, ConsoleColor.DarkRed);
+        
+        PrintOnPosition(highScorePosX - (highScoreTitle.Length / 2), ++hightScorePosY, new string('=', highScoreTitle.Length), ConsoleColor.DarkRed);
+        
+        var reader = new StreamReader(@"..\..\Data\username.txt");
+        var lineUser = reader.ReadLine();
+        var lineScores = reader.ReadLine();
+        while (lineUser != null || lineScores!=null)
+        {
+            PrintOnPosition(highScorePosX - lineUser.Length,
+                ++hightScorePosY,
+             lineUser + " : " + lineScores , ConsoleColor.DarkYellow);
 
+            lineUser = reader.ReadLine();
+            lineScores = reader.ReadLine();
+        }
+    }
     private static void CreateFile()
     {
         try
