@@ -228,13 +228,22 @@ internal class MainGame
                 {
                     indexOfCatchedLetter = 0;
                     livesCount--;
-                    Console.SetCursorPosition(0, 1);
-                    RedrawLivesBar();
-                    Console.SetCursorPosition(0, 4);
-                    RedrawQuestionBar(DrawNewQuestion());
-                    Console.SetCursorPosition(0, 8);
-                    RedrawAnswerBar(container);
-                    isGameOver = false;
+                    if (livesCount == 0)
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        isGameOver = true;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        Console.SetCursorPosition(0, 4);
+                        RedrawQuestionBar(DrawNewQuestion());
+                        Console.SetCursorPosition(0, 8);
+                        RedrawAnswerBar(container);
+                        isGameOver = false;
+                    }
                 }
                 else
                 {
@@ -623,7 +632,6 @@ internal class MainGame
         {
             Console.SetCursorPosition(i, (consoleHeight / 2) - 7);
             Console.Write("*");
-
         }
         for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
         {
