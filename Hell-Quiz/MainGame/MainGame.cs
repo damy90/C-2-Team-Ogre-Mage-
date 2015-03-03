@@ -37,7 +37,7 @@ internal class MainGame
 
     static int indexCurrentPlayer;
 
-    static string pathHistory = @"questions\username.txt";
+    static string pathHistory = @"Data\username.txt";
     private static List<string> username;
 
     static void Main(string[] args)
@@ -69,7 +69,7 @@ internal class MainGame
         //this is somewhat stupid
         var fallingObjects = new List<FallingObject>(); //TODO: compare objects by their position, use a data structure that doesn't allow multiple equal(on the same position) objects
         ConsoleKeyInfo pressedKey;
-        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"F:\\TEAM-PROJECT\\C-2-Team-Ogre-Mage-\\Hell-Quiz\\MainGame\\DropThat.wav");
+        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"Data\Sounds\sound.wav");
         soundPlayer.Load();
         while (true)
         {
@@ -319,12 +319,15 @@ internal class MainGame
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-        else if (!(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) && score > int.Parse(username[indexCurrentPlayer + 1]))
+        else if (
+            !(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) &&   // check if the new score is bigger
+            score > int.Parse(username[indexCurrentPlayer + 1]))
         {
             username.RemoveAt(indexCurrentPlayer + 1);
             username.Insert(indexCurrentPlayer + 1, score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
+
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
     }
 
@@ -334,7 +337,7 @@ internal class MainGame
         {
             if (File.Exists(pathHistory))
             {
-                username = (File.ReadAllLines(@"questions\username.txt")).ToList();
+                username = (File.ReadAllLines(@"Data\username.txt")).ToList();
                 return;
             }
             using (FileStream fs = File.Create(pathHistory))
@@ -342,7 +345,7 @@ internal class MainGame
                 Byte[] info = new UTF8Encoding(true).GetBytes("");
                 fs.Write(info, 0, info.Length);
             }
-            username = (File.ReadAllLines(@"questions\username.txt")).ToList();
+            username = (File.ReadAllLines(@"Data\username.txt")).ToList();
         }
         catch (Exception ex)
         {
@@ -580,7 +583,7 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader("F:\\TEAM-PROJECT\\C-2-Team-Ogre-Mage-\\Hell-Quiz\\MainGame\\questions.txt");
+        System.IO.StreamReader file = new System.IO.StreamReader(@"Data\questions.txt");
         while ((line = file.ReadLine()) != null)
         {
             questions.Add(line);
@@ -595,7 +598,7 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader("F:\\TEAM-PROJECT\\C-2-Team-Ogre-Mage-\\Hell-Quiz\\MainGame\\answers.txt");
+        System.IO.StreamReader file = new System.IO.StreamReader(@"Data\answers.txt");
         while ((line = file.ReadLine()) != null)
         {
             questions.Add(line);
