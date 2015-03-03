@@ -113,6 +113,10 @@ internal class MainGame
                 {
                     soundPlayer.Stop();
                 }
+                if(pressedKey.Key == ConsoleKey.T)  //Only for the presentation. REMOVE AFTER
+                {
+                    PauseGame();
+                }
                 PrintOnPosition(player.X, player.Y, player.Str, player.Color);
             }
             #endregion
@@ -413,7 +417,7 @@ internal class MainGame
         Console.WriteLine(enterPlayerName);
         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
 
-        InputUsername(Console.ReadLine());
+        InputUsername(ReadLimitedName());
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         CreateGameDescriptionFrame();
@@ -614,7 +618,7 @@ internal class MainGame
     private static void ShowTimer(int consoleWidth, int consoleHeight)
     {
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.White;
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
         var padding = new StringBuilder();
         int count = 3;
         while (count > 0)
@@ -694,5 +698,29 @@ internal class MainGame
             Console.WriteLine(exc.ToString());
         }
         return questions;
+    }
+
+    private static string ReadLimitedName()
+    {
+        string inputName = string.Empty;
+        do
+        {
+            char c = Console.ReadKey().KeyChar;
+            if (c == '\n' || c == '\r')
+            {
+                break;
+            }
+            else
+            {
+                inputName += c;
+            }
+        } while (inputName.Length < 20);
+
+        return inputName;
+    }
+
+    private static void PauseGame()
+    {
+        Thread.Sleep(5000);
     }
 }

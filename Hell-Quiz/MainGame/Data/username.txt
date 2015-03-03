@@ -1,19 +1,10 @@
-maria
+Maria
 160
-mariaStefanova
-100
-solara
-0
-pesho
-60
-
-0
-mari
-0
-Ivan Kolev
-0
-Maria Ilieva
-fsaf
-0
-asfsa
-0
+Pesho
+240
+Gosho
+200
+Kalina
+120
+Bai Tosho
+400
