@@ -11,40 +11,37 @@ internal class MainGame
 {
     private static readonly Random random = new Random(); // Generator for pulling random questions.
 
-    private static readonly List<string> questions = ReadQuestionsFromFile();
-    // Load all questions from file.
+    private static readonly List<string> questions = ReadQuestionsFromFile();   // Load all questions from file.
 
-    private static readonly List<string> answers = ReadAnswersFromFile();
-    // Load all answers from file.
+    private static readonly List<string> answers = ReadAnswersFromFile();       // Load all answers from file.
 
-    private static readonly int consoleWidth = 107; //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
-    private static readonly int consoleHeight = 50; //Console.LargestWindowHeight - 20;
+    private static readonly int consoleWidth = 107;  //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+    private static readonly int consoleHeight = 50;  //Console.LargestWindowHeight - 20;
 
     private static int score = 0;
     static int livesCount = 3;
     static int gameFieldTop = 12;
 
-    static string container; //TODO: container should be used and generated only when drawing. Introduce var playerAnswer
+    static string container;
     static string gameOverMessage = "GAME OVER!";
     static bool isGameOver = false;
 
-    static int indexOfCatchedLetter = 0;   //TODO: Hu? <sarcasm>Verry descriptive!</sarcasm> Dany
+    static int indexOfCatchedLetter = 0;
     static char[] addLetter;
     static int nextQuestion;
     static string correctAnswer;
 
     private static int oldPosition;
-
     static int indexCurrentPlayer;
 
-    static string pathHistory = @"Data\username.txt";
+    static string pathHistory = @"..\..\Data\username.txt";
     private static List<string> username;
 
     static void Main(string[] args)
     {
         CreateFile();
         Console.SetWindowSize(consoleWidth, consoleHeight);
-        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
+        Console.SetBufferSize(consoleWidth, consoleHeight + 1); //+10
 
         Console.CursorVisible = false;
         StartScreen();
@@ -61,16 +58,17 @@ internal class MainGame
         PrintOnPosition(player.X, player.Y, player.Str, player.Color);
 
         var watch = Stopwatch.StartNew();
-        var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will drop new bomb
-        var watchLetters = Stopwatch.StartNew(); // Same for letters
-        var watchDels = Stopwatch.StartNew();    // Same for deletes
+        var watchBombs = Stopwatch.StartNew();   // Define dropping bombs in given time i.e how frequent will a new bomb drop.
+        var watchLetters = Stopwatch.StartNew(); // Same for letters.
+        var watchDels = Stopwatch.StartNew();    // Same for deletes.
 
-        //TODO use only 1 List<GamefieldObjects>() and let the collision detection figure out which is which
-        //this is somewhat stupid
-        var fallingObjects = new List<FallingObject>(); //TODO: compare objects by their position, use a data structure that doesn't allow multiple equal(on the same position) objects
+        var fallingObjects = new List<FallingObject>();
+
         ConsoleKeyInfo pressedKey;
-        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"Data\Sounds\sound.wav");
+
+        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"..\..\Data\Sounds\DropThat.wav");
         soundPlayer.Load();
+
         while (true)
         {
             #region Pressed Key, Moving Playes
@@ -241,11 +239,9 @@ internal class MainGame
                     soundPlayer.Dispose();
                     Console.ReadLine();
                     return;
-                    // TODO: Save score to a file & show end game screen.
                 }
-                else if (livesCount == 0) //lives=0, incorrect answer
+                else if (livesCount == 0)
                 {
-                    // Lose game.
                     GameOverScreen();
                     soundPlayer.Dispose();
                     Console.ReadLine();
@@ -261,10 +257,8 @@ internal class MainGame
         if ((fallingObject.Y == consoleHeight - 4) &&
             (fallingObject.X == player.X || fallingObject.X == player.X + 1 || fallingObject.X == player.X + 2))
         {
-            //redraw player after collision
-            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
-            //object already erased from the console
-            fallingObject.FallDown();
+            PrintOnPosition(player.X, player.Y, player.Str, player.Color);  // Redraw player after collision
+            fallingObject.FallDown();   // Object removed from the playfield.
 
             if (fallingObject is Bomb)
             {
@@ -304,12 +298,15 @@ internal class MainGame
     {
         Console.Clear();
         string gameOverInfo = "The correct answer is: ";
-        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length + 4, (consoleHeight / 2 - 1), gameOverMessage, ConsoleColor.DarkRed);
-        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length + 6, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        string scoreInfo = "Your current score is: ";
+        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length/2, (consoleHeight / 2 - 2), gameOverMessage, ConsoleColor.DarkRed);
+        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length/2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        PrintOnPosition(consoleWidth / 2 - scoreInfo.Length/2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
+
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
 
-        //writing to the scoreFile
-        if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
+        // Writing to the scoreFile
+        if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // If the player name is new.
         {
             if (username.Count() != 1)
             {
@@ -319,9 +316,7 @@ internal class MainGame
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-        else if (
-            !(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) &&   // check if the new score is bigger
-            score > int.Parse(username[indexCurrentPlayer + 1]))
+        else if (!(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) && score > int.Parse(username[indexCurrentPlayer + 1]))
         {
             username.RemoveAt(indexCurrentPlayer + 1);
             username.Insert(indexCurrentPlayer + 1, score.ToString());
@@ -337,7 +332,7 @@ internal class MainGame
         {
             if (File.Exists(pathHistory))
             {
-                username = (File.ReadAllLines(@"Data\username.txt")).ToList();
+                username = (File.ReadAllLines(@"..\..\Data\username.txt")).ToList();
                 return;
             }
             using (FileStream fs = File.Create(pathHistory))
@@ -345,7 +340,7 @@ internal class MainGame
                 Byte[] info = new UTF8Encoding(true).GetBytes("");
                 fs.Write(info, 0, info.Length);
             }
-            username = (File.ReadAllLines(@"Data\username.txt")).ToList();
+            username = (File.ReadAllLines(@"..\..\Data\username.txt")).ToList();
         }
         catch (Exception ex)
         {
@@ -355,19 +350,19 @@ internal class MainGame
 
     private static void StartScreen()
     {
-        //Console.BackgroundColor = ConsoleColor.DarkGray;
-
         string gameDescription = "Game Description:";
         string enterPlayerName = "Enter username:";
+        string changeQuestionInfo = "PRESS \"Q\" if you would like to change the question manually.";
+        string audioInfo = "Press \"P\" to play some music and \"S\" to stop it.";
+        string enjoyTheGame = "Enjoy the game!";
         string howToPlay = "Answer the question.";
         string howToPlay2 = "Collect falling letters in order, to form the answer.";
         string howToPlay3 = "Catch a “backspace” symbol to delete the last letter.";
-        string howToPlay4 = "Beware the bombs. Enjoy the game!";
-        string changeQuestionInfo = "PRESS 'Q' if you would like to change the question manually.";
+        string howToPlay4 = "Beware the bombs.";
 
-        //Adding Username
+        // Adding Username
         Console.SetCursorPosition(consoleWidth / 2 - enterPlayerName.Length / 2, consoleHeight / 2 - 10);
-        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine(enterPlayerName);
         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
 
@@ -388,8 +383,14 @@ internal class MainGame
         Console.SetCursorPosition(consoleWidth / 2 - changeQuestionInfo.Length / 2, (consoleHeight / 2) + 2);
         Console.WriteLine(changeQuestionInfo);
 
-        Console.SetCursorPosition(consoleWidth / 2 - howToPlay4.Length / 2, (consoleHeight / 2) + 4);
+        Console.SetCursorPosition(consoleWidth / 2 - audioInfo.Length / 2, (consoleHeight / 2) + 4);
+        Console.WriteLine(audioInfo);
+
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay4.Length / 2, (consoleHeight / 2) + 6);
         Console.WriteLine(howToPlay4);
+
+        Console.SetCursorPosition(consoleWidth / 2 - enjoyTheGame.Length / 2, (consoleHeight / 2) + 8);
+        Console.WriteLine(enjoyTheGame);
 
         Console.ReadKey();
         Console.Clear();
@@ -583,7 +584,7 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"Data\questions.txt");
+        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\questions.txt");
         while ((line = file.ReadLine()) != null)
         {
             questions.Add(line);
@@ -598,7 +599,7 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"Data\answers.txt");
+        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\answers.txt");
         while ((line = file.ReadLine()) != null)
         {
             questions.Add(line);
