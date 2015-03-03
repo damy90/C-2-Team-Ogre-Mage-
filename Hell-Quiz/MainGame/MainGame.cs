@@ -36,6 +36,7 @@ internal class MainGame
 
     static string pathHistory = @"..\..\Data\username.txt";
     private static List<string> username;
+    private static readonly SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"..\..\Data\Sounds\DropThat.wav");
 
     static void Main(string[] args)
     {
@@ -75,7 +76,6 @@ internal class MainGame
 
         var watch = Stopwatch.StartNew();
 
-        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"..\..\Data\Sounds\DropThat.wav");
         try
         {
             soundPlayer.Load();
@@ -87,28 +87,28 @@ internal class MainGame
 
         while (true) //TODO: add endGame condition here
         {
-            MovePlayer(player);
+            KeyboardCommands(player);
 
             //next game step
             if (watch.ElapsedMilliseconds >= 200)
             {
                 //move everything
-                for (int i = 0; i < fallingObjects.Count; i++)
+                foreach (var fallingObject in fallingObjects)
                 {
-                    if (fallingObjects[i].Y < consoleHeight - 4)
+                    if (fallingObject.Y < consoleHeight - 4)
                     {
-                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", ConsoleColor.White);//clean previous position
-                        fallingObjects[i].FallDown();
-                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, fallingObjects[i].Str, fallingObjects[i].Color);
+                        PrintOnPosition(fallingObject.X, fallingObject.Y, " ", ConsoleColor.White);//clean previous position
+                        fallingObject.FallDown();
+                        PrintOnPosition(fallingObject.X, fallingObject.Y, fallingObject.Str, fallingObject.Color);
 
-                        CollisionDetection(fallingObjects[i], player, ref isGameOver);// TODO: call when player moves
+                        CollisionDetection(fallingObject, player, ref isGameOver);// TODO: call when player moves
                     }
 
                     // erace, move out of the field and forget
-                    else if (fallingObjects[i].Y == consoleHeight - 4)
+                    else if (fallingObject.Y == consoleHeight - 4)
                     {
-                        PrintOnPosition(fallingObjects[i].X, fallingObjects[i].Y, " ", fallingObjects[i].Color);
-                        fallingObjects[i].FallDown();
+                        PrintOnPosition(fallingObject.X, fallingObject.Y, " ", fallingObject.Color);
+                        fallingObject.FallDown();
                     }
                 }
 
@@ -123,11 +123,11 @@ internal class MainGame
                 }
 
                 //generated objects must not be on the same coordinates
+                //hashsets adding directly to the list would break the garbage collection
                 HashSet<FallingObject> fallingObjectsNewRow = new HashSet<FallingObject>();
                 RandomFallingObjectsGenerator(fallingObjectsNewRow, lettersPerRowMax, correctAnswer.ToArray());
                 RandomFallingObjectsGenerator(fallingObjectsNewRow, bonusCharsPerRowMax, new char[] {'&', '&', '&', '<'});//The ratio of occurances in the game depends on the ratio in the array
                 fallingObjects.AddRange(fallingObjectsNewRow);
-                
             }
 
             //game end handeling
@@ -203,7 +203,7 @@ internal class MainGame
         }   //end while true
     }
 
-    private static void MovePlayer(Player player)
+    private static void KeyboardCommands(Player player)
     {
         while (Console.KeyAvailable)
         {
@@ -228,6 +228,26 @@ internal class MainGame
                     PrintOnPosition(oldPosition, player.Y, " ", player.Color);
                 }
             }
+
+            if (pressedKey.Key == ConsoleKey.Q)
+                {
+                    if (questions.Count >= 1 && answers.Count >= 1)
+                    {
+                        indexOfCatchedLetter = 0;
+                        Console.SetCursorPosition(0, 4);
+                        RedrawQuestionBar(DrawNewQuestion());
+                        Console.SetCursorPosition(0, 8);
+                        RedrawAnswerBar(container);
+                    }
+                }
+                if (pressedKey.Key == ConsoleKey.P)
+                {
+                    soundPlayer.Play();
+                }
+                if (pressedKey.Key == ConsoleKey.S)
+                {
+                    soundPlayer.Stop();
+                }
             PrintOnPosition(player.X, player.Y, player.Str, player.Color);
         }
     }
@@ -311,8 +331,11 @@ internal class MainGame
     {
         Console.Clear();
         string gameOverInfo = "The correct answer is: ";
-        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length + 4, (consoleHeight / 2 - 1), gameOverMessage, ConsoleColor.DarkRed);
-        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length + 6, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        string scoreInfo = "Your current score is: ";
+        PrintOnPosition((consoleWidth / 2) - gameOverMessage.Length / 2, (consoleHeight / 2 - 2), gameOverMessage, ConsoleColor.DarkRed);
+        PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length / 2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
+        PrintOnPosition(consoleWidth / 2 - scoreInfo.Length / 2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
+
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
 
 
@@ -363,36 +386,47 @@ internal class MainGame
 
     private static void StartScreen()
     {
-        //Console.BackgroundColor = ConsoleColor.DarkGray;
-
         string gameDescription = "Game Description:";
         string enterPlayerName = "Enter username:";
+        string changeQuestionInfo = "PRESS \"Q\" if you would like to change the question manually.";
+        string audioInfo = "Press \"P\" to play some music and \"S\" to stop it.";
+        string enjoyTheGame = "Enjoy the game!";
         string howToPlay = "Answer the question.";
         string howToPlay2 = "Collect falling letters in order, to form the answer.";
         string howToPlay3 = "Catch a “backspace” symbol to delete the last letter.";
-        string howToPlay4 = "Beware the bombs. Enjoy the game!";
+        string howToPlay4 = "Beware the bombs.";
 
-        //Adding Username
+        // Adding Username
         Console.SetCursorPosition(consoleWidth / 2 - enterPlayerName.Length / 2, consoleHeight / 2 - 10);
-        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine(enterPlayerName);
         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
 
         InputUsername(Console.ReadLine());
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, consoleHeight / 2 - 6);
+        Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, (consoleHeight / 2) - 6);
         Console.WriteLine(gameDescription);
-        Console.SetCursorPosition(consoleWidth / 2 - howToPlay.Length / 2, consoleHeight / 2 - 4);
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay.Length / 2, (consoleHeight / 2) - 4);
         Console.WriteLine(howToPlay);
 
-        Console.SetCursorPosition(consoleWidth / 2 - howToPlay2.Length / 2, consoleHeight / 2 - 2);
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay2.Length / 2, (consoleHeight / 2) - 2);
         Console.WriteLine(howToPlay2);
 
-        Console.SetCursorPosition(consoleWidth / 2 - howToPlay3.Length / 2, consoleHeight / 2);
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay3.Length / 2, (consoleHeight / 2));
         Console.WriteLine(howToPlay3);
-        Console.SetCursorPosition(consoleWidth / 2 - howToPlay4.Length / 2, consoleHeight / +2);
+
+        Console.SetCursorPosition(consoleWidth / 2 - changeQuestionInfo.Length / 2, (consoleHeight / 2) + 2);
+        Console.WriteLine(changeQuestionInfo);
+
+        Console.SetCursorPosition(consoleWidth / 2 - audioInfo.Length / 2, (consoleHeight / 2) + 4);
+        Console.WriteLine(audioInfo);
+
+        Console.SetCursorPosition(consoleWidth / 2 - howToPlay4.Length / 2, (consoleHeight / 2) + 6);
         Console.WriteLine(howToPlay4);
+
+        Console.SetCursorPosition(consoleWidth / 2 - enjoyTheGame.Length / 2, (consoleHeight / 2) + 8);
+        Console.WriteLine(enjoyTheGame);
 
         Console.ReadKey();
         Console.Clear();
