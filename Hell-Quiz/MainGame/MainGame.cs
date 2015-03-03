@@ -602,7 +602,6 @@ internal class MainGame
         {
             Console.SetCursorPosition(i, (consoleHeight / 2) - 7);
             Console.Write("*");
-
         }
         for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
         {
