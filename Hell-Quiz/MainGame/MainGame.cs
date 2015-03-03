@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading;
 
@@ -10,31 +11,30 @@ internal class MainGame
 {
     private static readonly Random random = new Random(); // Generator for pulling random questions.
 
-    private static readonly List<string> questions = (File.ReadAllLines(@"questions\questions.txt")).ToList();
-    // Load all questions from file.
+    private static readonly List<string> questions = ReadQuestionsFromFile();   // Load all questions from file.
 
-    private static readonly List<string> answers = (File.ReadAllLines(@"questions\answers.txt")).ToList();
-    // Load all answers from file.
+    private static readonly List<string> answers = ReadAnswersFromFile();       // Load all answers from file.
 
-    private static readonly int consoleWidth = 107; //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
-    private static readonly int consoleHeight = 50; //Console.LargestWindowHeight - 20;
+    private static readonly int consoleWidth = 107;  //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
+    private static readonly int consoleHeight = 50;  //Console.LargestWindowHeight - 20;
 
     private static int score = 0;
     static int livesCount = 3;
     static int gameFieldTop = 12;
 
-    static string container; //TODO: container should be used and generated only when drawing. Introduce var playerAnswer
+    static string container;
     static string gameOverMessage = "GAME OVER!";
-    static int index = 0;   //TODO: Hu? <sarcasm>Verry descriptive!</sarcasm> Dany
+    static bool isGameOver = false;
+
+    static int indexOfCatchedLetter = 0;
     static char[] addLetter;
-    static int nextQuestion = random.Next(questions.Count);
-    static string correctAnswer = GetAnswer(nextQuestion).ToUpper();
+    static int nextQuestion;
+    static string correctAnswer;
 
     private static int oldPosition;
-
     static int indexCurrentPlayer;
-    //static string inputUsername;
-    static string pathHistory = @"questions\username.txt";
+
+    static string pathHistory = @"..\..\Data\username.txt";
     private static List<string> username;
 
     static void Main(string[] args)
@@ -51,9 +51,11 @@ internal class MainGame
 
     static string DrawNewQuestion()
     {
-        string question = GetQuestion(nextQuestion);
+        nextQuestion = random.Next(answers.Count);
+        int num = nextQuestion;
+        string question = GetQuestion(num);
+        correctAnswer = GetAnswer(num).ToUpper();
         container = new string('*', correctAnswer.Length);
-        //PrintStartScreen(consoleWidth, consoleHeight); // Timer start.
         return question;
     }
 
@@ -72,6 +74,16 @@ internal class MainGame
         var fallingObjects = new List<FallingObject>(); //TODO: compare objects by their position, use a data structure that doesn't allow multiple equal(on the same position) objects
 
         var watch = Stopwatch.StartNew();
+
+        SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"..\..\Data\Sounds\DropThat.wav");
+        try
+        {
+            soundPlayer.Load();
+        }
+        catch
+        {
+            //ignore the lack of music
+        }
 
         while (true) //TODO: add endGame condition here
         {
@@ -119,25 +131,75 @@ internal class MainGame
             }
 
             //game end handeling
+            #region Game end handling
+            if (container[container.Length - 1] != '*')
+            {
+                container = container.ToUpper();
+                if (container.Equals(correctAnswer) && questions.Count >= 1 && answers.Count >= 1)
+                {
+                    score += (correctAnswer.Length * 20);
+                    livesCount++;
+                    indexOfCatchedLetter = 0;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    Console.SetCursorPosition(0, 4);
+                    RedrawQuestionBar(DrawNewQuestion());
+                    Console.SetCursorPosition(0, 8);
+                    RedrawAnswerBar(container);
+                    isGameOver = false;
+                }
+                else if (container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0))
+                {
+                    score += (correctAnswer.Length * 20);
+                    livesCount++;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    isGameOver = true;
+                }
+                else if((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
+                {
+                    livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    isGameOver = true;
+                }
+                else if (questions.Count >= 1 && answers.Count >= 1)
+                {
+                    indexOfCatchedLetter = 0;
+                    livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
+                    Console.SetCursorPosition(0, 4);
+                    RedrawQuestionBar(DrawNewQuestion());
+                    Console.SetCursorPosition(0, 8);
+                    RedrawAnswerBar(container);
+                    isGameOver = false;
+                }
+                else
+                {
+                    isGameOver = true;
+                }
+            }
+
             if (isGameOver)
             {
                 container = container.ToUpper();
                 if (correctAnswer.Equals(container))
                 {
-                    score += (answer.Length * 20);
-                    Console.SetCursorPosition(0, 1);
-                    RedrawLivesBar();
-                    Console.ReadLine();
-                    // TODO: Overwrite, factor in time, Now what?
-                }
-                else //lives=0, incorrect answer
-                {
-                    // Lose game.
                     GameOverScreen();
+                    soundPlayer.Dispose();
+                    Console.ReadLine();
+                    return;
+                }
+                else if (livesCount == 0)
+                {
+                    GameOverScreen();
+                    soundPlayer.Dispose();
                     Console.ReadLine();
                     return;
                 }
             }
+            #endregion
         }   //end while true
     }
 
@@ -219,35 +281,28 @@ internal class MainGame
                 else if (livesCount == 1)
                 {
                     livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
                     isGameOver = true;
                 }
             }
             else if (fallingObject is Del)
             {
-                if (index != 0)
+                if (indexOfCatchedLetter != 0)
                 {
                     UpdateAnswerWhenDeleteCaught();
                 }
                 Console.SetCursorPosition(0, 8);
-                RedrawAnswerBar(container);     // Put here redrawing only answer bar
+                RedrawAnswerBar(container);
             }
-            else
+            else if (fallingObject is Letter)
             {
-                if (container.Trim('*').Length < correctAnswer.Length)
+                if(indexOfCatchedLetter<correctAnswer.Length)
                 {
                     UpdateAnswerWhenLetterCaught(fallingObject);
-                    Console.SetCursorPosition(0, 8);
-                    RedrawAnswerBar(container);
-
-                    if (container.Equals(correctAnswer))
-                    {
-                        isGameOver = true;
-                    }
                 }
-                else
-                {
-                    isGameOver = true;
-                }
+                Console.SetCursorPosition(0, 8);
+                RedrawAnswerBar(container);
             }
         }
     }
@@ -363,16 +418,16 @@ internal class MainGame
     private static void UpdateAnswerWhenLetterCaught(FallingObject letter)
     {
         addLetter = container.ToCharArray();
-        addLetter[index] = letter.Str[0];
-        index++;
+        addLetter[indexOfCatchedLetter] = letter.Str[0];
+        indexOfCatchedLetter++;
         container = string.Join("", addLetter);
     }
 
     private static void UpdateAnswerWhenDeleteCaught()
     {
         addLetter = container.ToCharArray();
-        index--;
-        addLetter[index] = '*';
+        indexOfCatchedLetter--;
+        addLetter[indexOfCatchedLetter] = '*';
         container = string.Join("", addLetter);
     }
 
@@ -514,5 +569,35 @@ internal class MainGame
         }
         Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
+    }
+
+    private static List<string> ReadQuestionsFromFile()
+    {
+        string line;
+        List<string> questions = new List<string>();
+
+        // Read the file line by line.
+        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\questions.txt");
+        while ((line = file.ReadLine()) != null)
+        {
+            questions.Add(line);
+        }
+
+        return questions;
+    }
+
+    private static List<string> ReadAnswersFromFile()
+    {
+        string line;
+        List<string> questions = new List<string>();
+
+        // Read the file line by line.
+        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\answers.txt");
+        while ((line = file.ReadLine()) != null)
+        {
+            questions.Add(line);
+        }
+
+        return questions;
     }
 }
