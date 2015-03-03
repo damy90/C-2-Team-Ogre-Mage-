@@ -228,13 +228,22 @@ internal class MainGame
                 {
                     indexOfCatchedLetter = 0;
                     livesCount--;
-                    Console.SetCursorPosition(0, 1);
-                    RedrawLivesBar();
-                    Console.SetCursorPosition(0, 4);
-                    RedrawQuestionBar(DrawNewQuestion());
-                    Console.SetCursorPosition(0, 8);
-                    RedrawAnswerBar(container);
-                    isGameOver = false;
+                    if (livesCount == 0)
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        isGameOver = true;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        Console.SetCursorPosition(0, 4);
+                        RedrawQuestionBar(DrawNewQuestion());
+                        Console.SetCursorPosition(0, 8);
+                        RedrawAnswerBar(container);
+                        isGameOver = false;
+                    }
                 }
                 else
                 {
@@ -340,6 +349,7 @@ internal class MainGame
         PrintHightScore();
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
     }
+
     private static void PrintHightScore()
     {
         int highScorePosX = consoleWidth / 2;
@@ -362,6 +372,7 @@ internal class MainGame
             lineScores = reader.ReadLine();
         }
     }
+
     private static void CreateFile()
     {
         try
@@ -647,12 +658,19 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\questions.txt");
-        while ((line = file.ReadLine()) != null)
+        try
         {
-            questions.Add(line);
+            System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\questions.txt");
+            while ((line = file.ReadLine()) != null)
+            {
+                questions.Add(line);
+            }
         }
-
+        catch (IOException exc)
+        {
+            Console.WriteLine("Invalid file path.");
+            Console.WriteLine(exc.ToString());
+        }
         return questions;
     }
 
@@ -662,12 +680,19 @@ internal class MainGame
         List<string> questions = new List<string>();
 
         // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\answers.txt");
-        while ((line = file.ReadLine()) != null)
+        try
         {
-            questions.Add(line);
+            System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\answers.txt");
+            while ((line = file.ReadLine()) != null)
+            {
+                questions.Add(line);
+            }
         }
-
+        catch(IOException exc)
+        {
+            Console.WriteLine("Invalid file path.");
+            Console.WriteLine(exc.ToString());
+        }
         return questions;
     }
 }
