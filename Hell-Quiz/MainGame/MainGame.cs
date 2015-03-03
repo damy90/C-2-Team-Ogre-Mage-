@@ -133,7 +133,7 @@ internal class MainGame
 
             #region Add deletes to list
             // Add dels to list
-            if (watchDels.ElapsedMilliseconds >= 5000) // Define how frequent deletes are droping
+            if (watchDels.ElapsedMilliseconds >= 2000) // Define how frequent deletes are droping
             {
                 var del = new Del(randomGenerator.Next(2, consoleWidth - 2), gameFieldTop);
 
@@ -198,6 +198,7 @@ internal class MainGame
                 if (container.Equals(correctAnswer) && questions.Count >= 1 && answers.Count >= 1)
                 {
                     score += (correctAnswer.Length * 20);
+                    livesCount++;
                     indexOfCatchedLetter = 0;
                     Console.SetCursorPosition(0, 1);
                     RedrawLivesBar();
@@ -210,6 +211,7 @@ internal class MainGame
                 else if (container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0))
                 {
                     score += (correctAnswer.Length * 20);
+                    livesCount++;
                     Console.SetCursorPosition(0, 1);
                     RedrawLivesBar();
                     isGameOver = true;
@@ -217,8 +219,10 @@ internal class MainGame
                 else if (questions.Count > 0 && answers.Count > 0)
                 {
                     indexOfCatchedLetter = 0;
+                    livesCount--;
+                    Console.SetCursorPosition(0, 1);
+                    RedrawLivesBar();
                     Console.SetCursorPosition(0, 4);
-
                     RedrawQuestionBar(DrawNewQuestion());
                     Console.SetCursorPosition(0, 8);
                     RedrawAnswerBar(container);
