@@ -39,13 +39,14 @@ internal class MainGame
 
     static void Main(string[] args)
     {
-        CreateFile();
         Console.SetWindowSize(consoleWidth, consoleHeight);
         Console.SetBufferSize(consoleWidth, consoleHeight + 1); //+10
-
         Console.CursorVisible = false;
-        StartScreen();
 
+        CreateFile();
+
+        StartScreen();
+        ShowTimer(consoleHeight, consoleWidth);
         StartGame(DrawNewQuestion(), container);
     }
 
@@ -216,7 +217,7 @@ internal class MainGame
                     RedrawLivesBar();
                     isGameOver = true;
                 }
-                else if((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
+                else if ((!container.Equals(correctAnswer) && (questions.Count == 0 || answers.Count == 0)))
                 {
                     livesCount--;
                     Console.SetCursorPosition(0, 1);
@@ -298,7 +299,7 @@ internal class MainGame
             }
             else if (fallingObject is Letter)
             {
-                if(indexOfCatchedLetter<correctAnswer.Length)
+                if (indexOfCatchedLetter < correctAnswer.Length)
                 {
                     UpdateAnswerWhenLetterCaught(fallingObject);
                 }
@@ -383,6 +384,7 @@ internal class MainGame
         InputUsername(Console.ReadLine());
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
+        CreateGameDescriptionFrame();
         Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, (consoleHeight / 2) - 6);
         Console.WriteLine(gameDescription);
         Console.SetCursorPosition(consoleWidth / 2 - howToPlay.Length / 2, (consoleHeight / 2) - 4);
@@ -577,8 +579,10 @@ internal class MainGame
         return answer;
     }
 
-    private static void PrintStartScreen(int consoleHeight, int consoleWidth)
+    private static void ShowTimer(int consoleWidth, int consoleHeight)
     {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.White;
         var padding = new StringBuilder();
         int count = 3;
         while (count > 0)
@@ -590,6 +594,31 @@ internal class MainGame
         }
         Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
         Console.WriteLine(padding.Append(' ', 14));
+    }
+
+    private static void CreateGameDescriptionFrame()
+    {
+        for (int i = (consoleWidth / 2 - 32), k = 0; k <= 61; i++, k++)
+        {
+            Console.SetCursorPosition(i, (consoleHeight / 2) - 7);
+            Console.Write("*");
+
+        }
+        for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
+        {
+            Console.SetCursorPosition((consoleWidth / 2 - 32), i);
+            Console.Write("*");
+        }
+        for (int i = (consoleWidth / 2 - 31), k = 0; k <= 61; i++, k++)
+        {
+            Console.SetCursorPosition(i, (consoleHeight / 2) + 9);
+            Console.Write("*");
+        }
+        for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
+        {
+            Console.SetCursorPosition((consoleWidth / 2 + 30), i);
+            Console.Write("*");
+        }
     }
 
     private static List<string> ReadQuestionsFromFile()
