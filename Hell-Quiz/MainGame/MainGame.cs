@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Text;
-using System.Threading;
 
 internal class MainGame
 {
@@ -62,7 +61,6 @@ internal class MainGame
 
     static void StartGame(string question, string answer)
     {
-        bool isGameOver = false;
         int lettersPerRowMax = 2;
         int bonusCharsPerRowMax = 1;
 
@@ -569,13 +567,6 @@ internal class MainGame
         Console.Write(str);
     }
 
-    private static void PrintOnPosition(int x, int y, char c, ConsoleColor color)
-    {
-        Console.SetCursorPosition(x, y);
-        Console.ForegroundColor = color;
-        Console.Write(c);
-    }
-
     private static string GetQuestion(int nextQuestion) // Gets the number of the question to be displayed.
     {
         string question = questions[nextQuestion];
@@ -588,21 +579,6 @@ internal class MainGame
         string answer = answers[nextAnswer];
         answers.RemoveAt(nextAnswer);
         return answer;
-    }
-
-    private static void PrintStartScreen(int consoleHeight, int consoleWidth)
-    {
-        var padding = new StringBuilder();
-        int count = 3;
-        while (count > 0)
-        {
-            Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
-            Console.WriteLine("STARTING IN: {0}", count);
-            Thread.Sleep(1000);
-            count--;
-        }
-        Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
-        Console.WriteLine(padding.Append(' ', 14));
     }
 
     private static List<string> ReadQuestionsFromFile()
