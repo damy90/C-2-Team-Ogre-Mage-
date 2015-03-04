@@ -334,7 +334,7 @@ internal class MainGame
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
 
         // Writing to the scoreFile
-        if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // If the player name is new.
+        if (username.Count() == 1)  // If the player name is new.
         {
             if (username.Count() != 1)
             {
@@ -344,7 +344,10 @@ internal class MainGame
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-        else if (!(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) && score > int.Parse(username[indexCurrentPlayer + 1]))
+            //if indexcurrentplayer + 1 is int 
+            
+        
+         if (score > int.Parse(username[indexCurrentPlayer + 1]))
         {
             username.RemoveAt(indexCurrentPlayer + 1);
             username.Insert(indexCurrentPlayer + 1, score.ToString());
@@ -454,13 +457,28 @@ internal class MainGame
         {
             indexCurrentPlayer = username.IndexOf(inputUsername);
 
+            int isInteger ;
+
+            if (username.Count > indexCurrentPlayer )
+            {
+                if (!(int.TryParse(username[(indexCurrentPlayer + 1)], out isInteger)))
+                {
+                    username.Insert(indexCurrentPlayer+1,"0");
+                    File.WriteAllLines(pathHistory, username);
+                }
+            }
+            else if (indexCurrentPlayer + 1 == username.Count)
+            {
+                username.Insert(indexCurrentPlayer + 1, "0");
+                File.WriteAllLines(pathHistory, username);
+            }
         }
         else
         {
             username.Add(inputUsername);
-            username.Add("");
+            username.Add("0");
             indexCurrentPlayer = username.IndexOf(inputUsername);
-            File.AppendAllText(pathHistory, inputUsername + Environment.NewLine);
+            File.WriteAllLines(pathHistory, username);
         }
     }
 
