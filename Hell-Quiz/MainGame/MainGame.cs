@@ -412,7 +412,7 @@ internal class MainGame
         string howToPlay = "Answer the question.";
         string howToPlay2 = "Collect falling letters in order, to form the answer.";
         string howToPlay3 = "Catch a “backspace” symbol to delete the last letter.";
-        string howToPlay4 = "Beware the bombs.";
+        string howToPlay4 = "Beware of the bombs.";
 
         // Adding Username
         Console.SetCursorPosition(consoleWidth / 2 - enterPlayerName.Length / 2, consoleHeight / 2 - 10);
