@@ -2,7 +2,7 @@
 A console game project part of Telerik Academy teamwork.
 ## Project Description
 
-The project represents a console game called “…” written in the C# programming language. The game is similar to the popular “Falling Rocks”, but offers a unique user experience. It tests your common knowledge, skills and instinct of self-preservation.
+The project represents a console game called “Hell Quiz” written in the C# programming language. The game is similar to the popular “Falling Rocks”, but offers a unique user experience. It tests your common knowledge, skills and instinct of self-preservation.
 
 ## Gameplay
 
