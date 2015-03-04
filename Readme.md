@@ -14,8 +14,8 @@ First, you receive a question in the upper part of the console. To answer this q
 
 * Right Arrow – Move Right
 
-* Q – Change the question
+* Q – Change the Question
 
-* P – Play the music
+* P – Play the Music
 
 * S – Stop the Music
