@@ -19,22 +19,22 @@ internal class MainGame
     private static readonly int consoleHeight = 50;  //Console.LargestWindowHeight - 20;
 
     private static int score = 0;
-    static int livesCount = 3;
-    static int gameFieldTop = 12;
+    private static int livesCount = 3;
+    static readonly int gameFieldTop = 12;
 
-    static string container;
-    static string gameOverMessage = "GAME OVER!";
-    static bool isGameOver = false;
+    private static string container;
+    private static readonly string gameOverMessage = "GAME OVER!";
+    private static bool isGameOver = false;
 
-    static int indexOfCatchedLetter = 0;
-    static char[] addLetter;
-    static int nextQuestion;
-    static string correctAnswer;
+    private static int indexOfCatchedLetter = 0;
+    private static char[] addLetter;
+    private static int nextQuestion;
+    private static string correctAnswer;
 
     private static int oldPosition;
-    static int indexCurrentPlayer;
+    private static int indexCurrentPlayer;
 
-    static string pathHistory = @"..\..\Data\username.txt";
+    private static readonly string pathHistory = @"..\..\Data\username.txt";
     private static List<string> username;
     private static readonly SoundPlayer soundPlayer = new System.Media.SoundPlayer(@"..\..\Data\Sounds\DropThat.wav");
 
@@ -92,6 +92,7 @@ internal class MainGame
             //next game step
             if (watch.ElapsedMilliseconds >= 200)
             {
+                watch.Restart();
                 //move everything
                 foreach (var fallingObject in fallingObjects)
                 {
@@ -111,8 +112,6 @@ internal class MainGame
                         fallingObject.FallDown();
                     }
                 }
-
-                watch.Restart();
 
                 //falling objects garbage collection
                 //CAUTION !1!!1ONE!!11 do not delete anything that hasn't been eraced from the console yet
