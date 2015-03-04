@@ -5,14 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Text;
+using System.Threading;
 
 internal class MainGame
 {
     private static readonly Random random = new Random(); // Generator for pulling random questions.
 
-    private static readonly List<string> questions = ReadQuestionsFromFile();   // Load all questions from file.
+    private static List<string> questions = ReadQuestionsFromFile();   // Load all questions from file.
 
-    private static readonly List<string> answers = ReadAnswersFromFile();       // Load all answers from file.
+    private static List<string> answers = ReadAnswersFromFile();       // Load all answers from file.
 
     private static readonly int consoleWidth = 107;  //Console.LargestWindowWidth - 60;   <-- depends on the screen resolution and default properties
     private static readonly int consoleHeight = 50;  //Console.LargestWindowHeight - 20;
@@ -39,13 +40,14 @@ internal class MainGame
 
     static void Main(string[] args)
     {
-        CreateFile();
         Console.SetWindowSize(consoleWidth, consoleHeight);
-        Console.SetBufferSize(consoleWidth, consoleHeight + 1);//+10
-
+        Console.SetBufferSize(consoleWidth, consoleHeight + 1); //+10
         Console.CursorVisible = false;
-        StartScreen();
 
+        CreateFile();
+
+        StartScreen();
+        ShowTimer(consoleHeight, consoleWidth);
         StartGame(DrawNewQuestion(), container);
     }
 
@@ -99,7 +101,7 @@ internal class MainGame
                         fallingObject.FallDown();
                         PrintOnPosition(fallingObject.X, fallingObject.Y, fallingObject.Str, fallingObject.Color);
 
-                        CollisionDetection(fallingObject, player, ref isGameOver);// TODO: call when player moves
+                        CollisionDetection(fallingObject, player);// TODO: call when player moves
                     }
 
                     // erace, move out of the field and forget
@@ -165,13 +167,22 @@ internal class MainGame
                 {
                     indexOfCatchedLetter = 0;
                     livesCount--;
-                    Console.SetCursorPosition(0, 1);
-                    RedrawLivesBar();
-                    Console.SetCursorPosition(0, 4);
-                    RedrawQuestionBar(DrawNewQuestion());
-                    Console.SetCursorPosition(0, 8);
-                    RedrawAnswerBar(container);
-                    isGameOver = false;
+                    if (livesCount == 0)
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        isGameOver = true;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(0, 1);
+                        RedrawLivesBar();
+                        Console.SetCursorPosition(0, 4);
+                        RedrawQuestionBar(DrawNewQuestion());
+                        Console.SetCursorPosition(0, 8);
+                        RedrawAnswerBar(container);
+                        isGameOver = false;
+                    }
                 }
                 else
                 {
@@ -203,10 +214,11 @@ internal class MainGame
 
     private static void KeyboardCommands(Player player)
     {
+        ConsoleKeyInfo pressedKey;
+
         while (Console.KeyAvailable)
         {
-
-            ConsoleKeyInfo pressedKey = Console.ReadKey(true);
+            pressedKey = Console.ReadKey(true);
             oldPosition = player.X;
 
             if (pressedKey.Key == ConsoleKey.LeftArrow)
@@ -217,16 +229,14 @@ internal class MainGame
                     PrintOnPosition(oldPosition + 2, player.Y, " ", player.Color);
                 }
             }
-            if (pressedKey.Key == ConsoleKey.RightArrow)
+            else if (pressedKey.Key == ConsoleKey.RightArrow)
             {
-                if (player.X + 2 < (consoleWidth - 2))
-                // < ConsoleWidth - 2, because of the boundaries of the user interface.
+                if (player.X + 2 < (consoleWidth - 2)) // < ConsoleWidth - 2, because of the boundaries of the user interface.
                 {
                     player.MovePlayer(1);
                     PrintOnPosition(oldPosition, player.Y, " ", player.Color);
                 }
             }
-
             if (pressedKey.Key == ConsoleKey.Q)
             {
                 if (questions.Count >= 1 && answers.Count >= 1)
@@ -245,6 +255,10 @@ internal class MainGame
             if (pressedKey.Key == ConsoleKey.S)
             {
                 soundPlayer.Stop();
+            }
+            if (pressedKey.Key == ConsoleKey.T)  //Only for the presentation. REMOVE AFTER
+            {
+                PauseGame();
             }
             PrintOnPosition(player.X, player.Y, player.Str, player.Color);
         }
@@ -278,15 +292,13 @@ internal class MainGame
         }
     }
 
-    private static void CollisionDetection(FallingObject fallingObject, Player player, ref bool isGameOver)
+    private static void CollisionDetection(FallingObject fallingObject, Player player)
     {
         if ((fallingObject.Y == consoleHeight - 4) &&
             (fallingObject.X == player.X || fallingObject.X == player.X + 1 || fallingObject.X == player.X + 2))
         {
-            //redraw player after collision
-            PrintOnPosition(player.X, player.Y, player.Str, player.Color);
-            //object already eraced from the console
-            fallingObject.FallDown();
+            PrintOnPosition(player.X, player.Y, player.Str, player.Color);  // Redraw player after collision
+            fallingObject.FallDown();   // Object removed from the playfield.
 
             if (fallingObject is Bomb)
             {
@@ -334,10 +346,10 @@ internal class MainGame
         PrintOnPosition(consoleWidth / 2 - gameOverInfo.Length / 2 - 3, (consoleHeight / 2), gameOverInfo + correctAnswer, ConsoleColor.DarkYellow);
         PrintOnPosition(consoleWidth / 2 - scoreInfo.Length / 2 - 1, (consoleHeight / 2 + 2), scoreInfo + score, ConsoleColor.DarkYellow);
 
-        
+        Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
 
-        //writing to the scoreFile
-        if (username.Count() == 1 || string.IsNullOrEmpty(username[indexCurrentPlayer + 1]))  // if the player's name is new 
+        // Writing to the scoreFile
+        if (username.Count() == 1)  // If the player name is new.
         {
             if (username.Count() != 1)
             {
@@ -347,17 +359,15 @@ internal class MainGame
             username.Add(score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-        else if (
-            !(string.IsNullOrEmpty(username[indexCurrentPlayer + 1])) &&   // check if the new score is bigger
-            score > int.Parse(username[indexCurrentPlayer + 1]))
+        //if indexcurrentplayer + 1 is int 
+
+        if (score > int.Parse(username[indexCurrentPlayer + 1]))
         {
             username.RemoveAt(indexCurrentPlayer + 1);
             username.Insert(indexCurrentPlayer + 1, score.ToString());
             File.WriteAllLines(pathHistory, username);
         }
-
-        PrintScoreboard();
-
+        PrintHightScore();
         Console.SetCursorPosition(consoleWidth / 2 - 15, consoleHeight);
     }
 
@@ -401,9 +411,10 @@ internal class MainGame
         Console.WriteLine(enterPlayerName);
         Console.SetCursorPosition(consoleWidth / 2, consoleHeight / 2 - 9);
 
-        InputUsername(Console.ReadLine());
+        InputUsername(ReadLimitedName());
 
         Console.ForegroundColor = ConsoleColor.DarkYellow;
+        CreateGameDescriptionFrame();
         Console.SetCursorPosition(consoleWidth / 2 - gameDescription.Length / 2, (consoleHeight / 2) - 6);
         Console.WriteLine(gameDescription);
         Console.SetCursorPosition(consoleWidth / 2 - howToPlay.Length / 2, (consoleHeight / 2) - 4);
@@ -431,22 +442,83 @@ internal class MainGame
         Console.Clear();
     }
 
+    private static void CreateGameDescriptionFrame()
+    {
+        for (int i = (consoleWidth / 2 - 32), k = 0; k <= 61; i++, k++)
+        {
+            Console.SetCursorPosition(i, (consoleHeight / 2) - 7);
+            Console.Write("*");
+        }
+        for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
+        {
+            Console.SetCursorPosition((consoleWidth / 2 - 32), i);
+            Console.Write("*");
+        }
+        for (int i = (consoleWidth / 2 - 31), k = 0; k <= 61; i++, k++)
+        {
+            Console.SetCursorPosition(i, (consoleHeight / 2) + 9);
+            Console.Write("*");
+        }
+        for (int i = (consoleHeight / 2) - 7, k = 0; k < 17; i++, k++)
+        {
+            Console.SetCursorPosition((consoleWidth / 2 + 30), i);
+            Console.Write("*");
+        }
+    }
+
     private static void InputUsername(string inputUsername)
     {
         if (username.Contains(inputUsername))
         {
             indexCurrentPlayer = username.IndexOf(inputUsername);
 
+            int isInteger;
+
+            if (username.Count > indexCurrentPlayer)
+            {
+                if (!(int.TryParse(username[(indexCurrentPlayer + 1)], out isInteger)))
+                {
+                    username.Insert(indexCurrentPlayer + 1, "0");
+                    File.WriteAllLines(pathHistory, username);
+                }
+            }
+            else if (indexCurrentPlayer + 1 == username.Count)
+            {
+                username.Insert(indexCurrentPlayer + 1, "0");
+                File.WriteAllLines(pathHistory, username);
+            }
         }
         else
         {
             username.Add(inputUsername);
-            username.Add("");
+            username.Add("0");
             indexCurrentPlayer = username.IndexOf(inputUsername);
-            File.AppendAllText(pathHistory, inputUsername + Environment.NewLine);
+            File.WriteAllLines(pathHistory, username);
         }
     }
 
+    private static void PrintHightScore()
+    {
+        int highScorePosX = consoleWidth / 2;
+        int hightScorePosY = consoleHeight / 2 + 5;
+        string highScoreTitle = "HIGH SCORES";
+        PrintOnPosition(highScorePosX - (highScoreTitle.Length / 2), hightScorePosY, highScoreTitle, ConsoleColor.DarkRed);
+
+        PrintOnPosition(highScorePosX - (highScoreTitle.Length / 2), ++hightScorePosY, new string('=', highScoreTitle.Length), ConsoleColor.DarkRed);
+
+        var reader = new StreamReader(@"..\..\Data\username.txt");
+        var lineUser = reader.ReadLine();
+        var lineScores = reader.ReadLine();
+        while (lineUser != null || lineScores != null)
+        {
+            PrintOnPosition(highScorePosX - lineUser.Length,
+                ++hightScorePosY,
+             lineUser + " : " + lineScores, ConsoleColor.DarkYellow);
+
+            lineUser = reader.ReadLine();
+            lineScores = reader.ReadLine();
+        }
+    }
 
     private static void UpdateAnswerWhenLetterCaught(FallingObject letter)
     {
@@ -570,57 +642,93 @@ internal class MainGame
 
     private static string GetQuestion(int nextQuestion) // Gets the number of the question to be displayed.
     {
-        string question = questions[nextQuestion];
-        questions.Remove(question);
+        string question = questions.ElementAt(nextQuestion);
+        questions.RemoveAt(nextQuestion);
         return question;
     }
 
     private static string GetAnswer(int nextAnswer) // Gets the number of the answer.
     {
-        string answer = answers[nextAnswer];
+        string answer = answers.ElementAt(nextAnswer);
         answers.RemoveAt(nextAnswer);
         return answer;
     }
 
     private static List<string> ReadQuestionsFromFile()
     {
-        string line;
-        List<string> questions = new List<string>();
-
-        // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\questions.txt");
-        while ((line = file.ReadLine()) != null)
-        {
-            questions.Add(line);
-        }
+        string filePath = @"..\..\Data\questions.txt";
+        questions = FileReader(filePath);
 
         return questions;
     }
 
     private static List<string> ReadAnswersFromFile()
     {
-        string line;
-        List<string> questions = new List<string>();
+        string filePath = @"..\..\Data\answers.txt";
+        answers = FileReader(filePath);
 
-        // Read the file line by line.
-        System.IO.StreamReader file = new System.IO.StreamReader(@"..\..\Data\answers.txt");
-        while ((line = file.ReadLine()) != null)
-        {
-            questions.Add(line);
-        }
-
-        return questions;
+        return answers;
     }
 
-    private static void PrintScoreboard()
+    private static List<string> FileReader(string filePath)
     {
-        int scoreboardLeft = consoleWidth - 70;
-        int scoreboardTop = consoleHeight - 20;
-        int printCount = Math.Min(username.Count, 5);
-        for (int i = 0; i < printCount; i += 2)
+        // Read the file line by line.
+        List<string> output = new List<string>();
+        string line;
+        try
         {
-            Console.SetCursorPosition(scoreboardLeft, scoreboardTop + i);
-            Console.Write("{0}:\t\t{1} points", username[i], username[i + 1]);
+            System.IO.StreamReader file = new System.IO.StreamReader(filePath);
+            while ((line = file.ReadLine()) != null)
+            {
+                output.Add(line);
+            }
         }
+        catch (IOException exc)
+        {
+            Console.WriteLine("Invalid file path.");
+            Console.WriteLine(exc.ToString());
+        }
+        return output;
+    }
+
+    private static string ReadLimitedName()
+    {
+        string inputName = string.Empty;
+        do
+        {
+            char c = Console.ReadKey().KeyChar;
+            if (c == '\n' || c == '\r')
+            {
+                break;
+            }
+            else
+            {
+                inputName += c;
+            }
+        } while (inputName.Length < 20);
+
+        return inputName;
+    }
+
+    private static void ShowTimer(int consoleWidth, int consoleHeight)
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        var padding = new StringBuilder();
+        int count = 3;
+        while (count > 0)
+        {
+            Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
+            Console.WriteLine("STARTING IN: {0}", count);
+            Thread.Sleep(1000);
+            count--;
+        }
+        Console.SetCursorPosition((consoleHeight / 2) - 6, (consoleWidth / 2) - 2);
+        Console.WriteLine(padding.Append(' ', 14));
+    }
+
+    private static void PauseGame()
+    {
+        Thread.Sleep(5000);
     }
 }

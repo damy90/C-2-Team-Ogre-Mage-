@@ -35,10 +35,10 @@
       <FileName>Letter.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="MainGame" Collapsed="true">
-    <Position X="14.25" Y="0.5" Width="1.5" />
+  <Class Name="MainGame">
+    <Position X="14.25" Y="0.5" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>hFkAqAABApCgIAABAAQKhAEiIERASAABAgQABAABIAA=</HashCode>
+      <HashCode>hFkAqAwhApCgSAABAAQKhAGiIERESAARAgUABAAAQAA=</HashCode>
       <FileName>MainGame.cs</FileName>
     </TypeIdentifier>
   </Class>
